@@ -1,4 +1,14 @@
 #!/usr/bin/env node
 
-console.log("NoHardText CLI");
-console.log("Status: bootstrapped");
+export function getCliBanner(): string {
+  return [
+    "NoHardText CLI",
+    "Status: bootstrapped"
+  ].join("\n");
+}
+
+export function runCli(): void {
+  console.log(getCliBanner());
+}
+
+runCli();
