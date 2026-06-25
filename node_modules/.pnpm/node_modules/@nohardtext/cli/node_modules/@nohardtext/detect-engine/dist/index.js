@@ -14,7 +14,8 @@ function detect(input) {
     findings: [
       ...ruleFindings,
       ...detectJsxText(input.filePath, input.sourceText),
-      ...detectPlaceholderText(input.filePath, input.sourceText)
+      ...detectPlaceholderText(input.filePath, input.sourceText),
+      ...detectTitleAttributeText(input.filePath, input.sourceText)
     ]
   };
 }
@@ -56,8 +57,28 @@ function detectPlaceholderText(filePath, sourceText) {
     suggestions: [{ message: "Extract this placeholder to a localization key." }]
   }));
 }
+function detectTitleAttributeText(filePath, sourceText) {
+  return collectJsxAttributeStringValues(sourceText, ["title"]).map((node, index) => ({
+    id: `${filePath}:NHT1003:${node.startLine}:${node.startColumn}:${index}`,
+    ruleId: "NHT1003",
+    severity: "high",
+    category: "localization",
+    message: `Hardcoded title attribute found: "${node.value}"`,
+    explanation: "User-facing title attributes should be moved to localization files.",
+    location: {
+      filePath,
+      startLine: node.startLine,
+      startColumn: node.startColumn,
+      endLine: node.endLine,
+      endColumn: node.endColumn
+    },
+    fixable: true,
+    suggestions: [{ message: "Extract this title attribute to a localization key." }]
+  }));
+}
 export {
   detect,
   detectJsxText,
-  detectPlaceholderText
+  detectPlaceholderText,
+  detectTitleAttributeText
 };

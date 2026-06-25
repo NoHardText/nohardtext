@@ -3,7 +3,7 @@ export default function App() {
     <>
       <h1>Welcome</h1>
 
-      <button>Start Game</button>
+      <button title="Start the game">Start Game</button>
 
       <input placeholder="Search..." />
 
