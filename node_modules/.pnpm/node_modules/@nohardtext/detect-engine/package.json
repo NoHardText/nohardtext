@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@nohardtext/domain": "workspace:*",
+    "@nohardtext/parser": "workspace:*",
     "@nohardtext/rule-engine": "workspace:*"
   }
 }

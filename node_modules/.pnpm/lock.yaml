@@ -29,6 +29,9 @@ importers:
       '@nohardtext/domain':
         specifier: workspace:*
         version: link:../domain
+      '@nohardtext/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@nohardtext/rule-engine':
         specifier: workspace:*
         version: link:../rule-engine
@@ -46,6 +49,10 @@ importers:
       '@babel/types':
         specifier: ^7.28.0
         version: 7.29.7
+    devDependencies:
+      '@types/babel__traverse':
+        specifier: ^7.28.0
+        version: 7.28.0
 
   packages/report-engine:
     dependencies:
@@ -529,6 +536,9 @@ packages:
     resolution: {integrity: sha512-BfzEnDJOt9T8M989/lA37EcJgat01wLRnoi5dQf3QzOH7jzpqTAzdDbVfRljVr5r+jzKqpbHeyOfAaXxAd0PAA==}
     cpu: [x64]
     os: [win32]
+
+  '@types/babel__traverse@7.28.0':
+    resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
@@ -1198,6 +1208,10 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.62.2':
     optional: true
+
+  '@types/babel__traverse@7.28.0':
+    dependencies:
+      '@babel/types': 7.29.7
 
   '@types/estree@1.0.9': {}
 
