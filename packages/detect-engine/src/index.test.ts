@@ -1,38 +1,62 @@
-import { describe, expect, it } from 'vitest';
-import { detect } from './index';
-import type { Rule } from '@nohardtext/rule-engine';
+import { describe, expect, it } from "vitest";
+import { detect, detectJsxText } from "./index";
+import type { Rule } from "@nohardtext/rule-engine";
 
-describe('@nohardtext/detect-engine', () => {
-  it('runs rules through the detect pipeline', () => {
+describe("@nohardtext/detect-engine", () => {
+  it("detects hardcoded JSX text", () => {
+    const findings = detectJsxText(
+      "src/App.tsx",
+      `
+        export default function App() {
+          return (
+            <>
+              <h1>Welcome</h1>
+              <button>Start Game</button>
+              <div className="hero" />
+            </>
+          );
+        }
+      `
+    );
+
+    expect(findings).toHaveLength(2);
+    expect(findings[0]?.ruleId).toBe("NHT1001");
+    expect(findings[0]?.message).toContain("Welcome");
+    expect(findings[1]?.message).toContain("Start Game");
+  });
+
+  it("keeps compatibility with custom rules", () => {
     const rule: Rule = {
-      id: 'NHT1001',
-      name: 'JSX Text',
-      run: () => [{
-        id: 'finding-1',
-        ruleId: 'NHT1001',
-        severity: 'high',
-        category: 'localization',
-        message: 'Hardcoded text found.',
-        explanation: 'Move user-facing text to localization files.',
-        location: {
-          filePath: 'src/App.tsx',
-          startLine: 1,
-          startColumn: 1,
-          endLine: 1,
-          endColumn: 10
-        },
-        fixable: true,
-        suggestions: [{ message: 'Extract to translation key.' }]
-      }]
+      id: "CUSTOM001",
+      name: "Custom Rule",
+      run: () => [
+        {
+          id: "finding-1",
+          ruleId: "CUSTOM001",
+          severity: "info",
+          category: "developer-experience",
+          message: "Custom finding.",
+          explanation: "Custom rule result.",
+          location: {
+            filePath: "src/App.tsx",
+            startLine: 1,
+            startColumn: 1,
+            endLine: 1,
+            endColumn: 1
+          },
+          fixable: false,
+          suggestions: []
+        }
+      ]
     };
 
     const result = detect({
-      filePath: 'src/App.tsx',
-      sourceText: '<h1>Welcome</h1>',
+      filePath: "src/App.tsx",
+      sourceText: "export default function App() { return null; }",
       rules: [rule]
     });
 
-    expect(result.filePath).toBe('src/App.tsx');
     expect(result.findings).toHaveLength(1);
+    expect(result.findings[0]?.ruleId).toBe("CUSTOM001");
   });
 });
