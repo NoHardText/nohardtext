@@ -9,6 +9,8 @@ export default function App() {
 
       <input placeholder="Search..." />
 
+      <img src="/logo.png" alt="Game logo" />
+
       <div className="hero" />
     </>
   );

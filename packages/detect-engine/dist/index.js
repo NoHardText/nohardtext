@@ -16,7 +16,8 @@ function detect(input) {
       ...detectJsxText(input.filePath, input.sourceText),
       ...detectPlaceholderText(input.filePath, input.sourceText),
       ...detectTitleAttributeText(input.filePath, input.sourceText),
-      ...detectAriaLabelText(input.filePath, input.sourceText)
+      ...detectAriaLabelText(input.filePath, input.sourceText),
+      ...detectAltAttributeText(input.filePath, input.sourceText)
     ]
   };
 }
@@ -85,8 +86,18 @@ function detectAriaLabelText(filePath, sourceText) {
     suggestion: "Extract this aria-label to a localization key."
   });
 }
+function detectAltAttributeText(filePath, sourceText) {
+  return detectStringAttribute(filePath, sourceText, {
+    attributeName: "alt",
+    ruleId: "NHT1005",
+    messagePrefix: "Hardcoded alt attribute found",
+    explanation: "User-facing image alt text should be moved to localization files.",
+    suggestion: "Extract this alt text to a localization key."
+  });
+}
 export {
   detect,
+  detectAltAttributeText,
   detectAriaLabelText,
   detectJsxText,
   detectPlaceholderText,

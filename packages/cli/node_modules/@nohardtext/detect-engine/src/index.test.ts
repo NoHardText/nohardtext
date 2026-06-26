@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   detect,
+  detectAriaLabelText,
   detectJsxText,
   detectPlaceholderText,
   detectTitleAttributeText
@@ -52,7 +53,18 @@ describe("@nohardtext/detect-engine", () => {
     expect(findings[0]?.message).toContain("Start the game");
   });
 
-  it("detects JSX text, placeholder, and title together", () => {
+  it("detects hardcoded aria-label text", () => {
+    const findings = detectAriaLabelText(
+      "src/App.tsx",
+      `export default function App() { return <button aria-label="Start button">Start Game</button>; }`
+    );
+
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.ruleId).toBe("NHT1004");
+    expect(findings[0]?.message).toContain("Start button");
+  });
+
+  it("detects JSX text, placeholder, title, and aria-label together", () => {
     const result = detect({
       filePath: "src/App.tsx",
       sourceText: `
@@ -60,7 +72,9 @@ describe("@nohardtext/detect-engine", () => {
           return (
             <>
               <h1>Welcome</h1>
-              <button title="Start the game">Start Game</button>
+              <button title="Start the game" aria-label="Start button">
+                Start Game
+              </button>
               <input placeholder="Search..." />
             </>
           );
@@ -72,7 +86,8 @@ describe("@nohardtext/detect-engine", () => {
       "NHT1001",
       "NHT1001",
       "NHT1002",
-      "NHT1003"
+      "NHT1003",
+      "NHT1004"
     ]);
   });
 

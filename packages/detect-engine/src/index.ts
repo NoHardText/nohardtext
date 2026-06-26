@@ -39,7 +39,8 @@ export function detect(input: DetectInput): DetectResult {
       ...detectJsxText(input.filePath, input.sourceText),
       ...detectPlaceholderText(input.filePath, input.sourceText),
       ...detectTitleAttributeText(input.filePath, input.sourceText),
-      ...detectAriaLabelText(input.filePath, input.sourceText)
+      ...detectAriaLabelText(input.filePath, input.sourceText),
+      ...detectAltAttributeText(input.filePath, input.sourceText)
     ]
   };
 }
@@ -115,5 +116,15 @@ export function detectAriaLabelText(filePath: string, sourceText: string): Findi
     messagePrefix: "Hardcoded aria-label found",
     explanation: "User-facing accessibility labels should be moved to localization files.",
     suggestion: "Extract this aria-label to a localization key."
+  });
+}
+
+export function detectAltAttributeText(filePath: string, sourceText: string): Finding[] {
+  return detectStringAttribute(filePath, sourceText, {
+    attributeName: "alt",
+    ruleId: "NHT1005",
+    messagePrefix: "Hardcoded alt attribute found",
+    explanation: "User-facing image alt text should be moved to localization files.",
+    suggestion: "Extract this alt text to a localization key."
   });
 }

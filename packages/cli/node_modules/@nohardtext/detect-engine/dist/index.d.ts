@@ -15,5 +15,6 @@ declare function detectJsxText(filePath: string, sourceText: string): Finding[];
 declare function detectPlaceholderText(filePath: string, sourceText: string): Finding[];
 declare function detectTitleAttributeText(filePath: string, sourceText: string): Finding[];
 declare function detectAriaLabelText(filePath: string, sourceText: string): Finding[];
+declare function detectAltAttributeText(filePath: string, sourceText: string): Finding[];
 
-export { type DetectInput, type DetectResult, detect, detectAriaLabelText, detectJsxText, detectPlaceholderText, detectTitleAttributeText };
+export { type DetectInput, type DetectResult, detect, detectAltAttributeText, detectAriaLabelText, detectJsxText, detectPlaceholderText, detectTitleAttributeText };
