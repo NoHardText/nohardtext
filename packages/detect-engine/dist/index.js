@@ -89,22 +89,81 @@ function detectTitleAttributeText(filePath, sourceText) {
   });
 }
 
+// src/rules/registry.ts
+var builtInRules = [
+  {
+    metadata: {
+      id: "NHT1001",
+      name: "JSX Text",
+      category: "localization",
+      severity: "high",
+      description: "Detects hardcoded user-facing text inside JSX nodes.",
+      fixable: true
+    },
+    detect: detectJsxText
+  },
+  {
+    metadata: {
+      id: "NHT1002",
+      name: "Placeholder Attribute",
+      category: "localization",
+      severity: "high",
+      description: "Detects hardcoded placeholder attribute values.",
+      fixable: true
+    },
+    detect: detectPlaceholderText
+  },
+  {
+    metadata: {
+      id: "NHT1003",
+      name: "Title Attribute",
+      category: "localization",
+      severity: "high",
+      description: "Detects hardcoded title attribute values.",
+      fixable: true
+    },
+    detect: detectTitleAttributeText
+  },
+  {
+    metadata: {
+      id: "NHT1004",
+      name: "ARIA Label",
+      category: "accessibility",
+      severity: "high",
+      description: "Detects hardcoded aria-label attribute values.",
+      fixable: true
+    },
+    detect: detectAriaLabelText
+  },
+  {
+    metadata: {
+      id: "NHT1005",
+      name: "Alt Attribute",
+      category: "accessibility",
+      severity: "high",
+      description: "Detects hardcoded image alt attribute values.",
+      fixable: true
+    },
+    detect: detectAltAttributeText
+  }
+];
+var builtInRuleDetectors = builtInRules.map((rule) => rule.detect);
+function getBuiltInRuleMetadata() {
+  return builtInRules.map((rule) => rule.metadata);
+}
+
 // src/index.ts
 function detect(input) {
   const ruleFindings = input.rules ? runRules(input.rules, {
     filePath: input.filePath,
     sourceText: input.sourceText
   }) : [];
+  const builtInFindings = builtInRules.flatMap(
+    (rule) => rule.detect(input.filePath, input.sourceText)
+  );
   return {
     filePath: input.filePath,
-    findings: [
-      ...ruleFindings,
-      ...detectJsxText(input.filePath, input.sourceText),
-      ...detectPlaceholderText(input.filePath, input.sourceText),
-      ...detectTitleAttributeText(input.filePath, input.sourceText),
-      ...detectAriaLabelText(input.filePath, input.sourceText),
-      ...detectAltAttributeText(input.filePath, input.sourceText)
-    ]
+    findings: [...ruleFindings, ...builtInFindings]
   };
 }
 export {
@@ -113,5 +172,6 @@ export {
   detectAriaLabelText,
   detectJsxText,
   detectPlaceholderText,
-  detectTitleAttributeText
+  detectTitleAttributeText,
+  getBuiltInRuleMetadata
 };

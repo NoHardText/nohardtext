@@ -33,5 +33,13 @@ interface HealthScore {
     score: number;
     grade: "AAA" | "AA" | "A" | "B" | "C" | "D" | "F";
 }
+interface RuleMetadata {
+    id: string;
+    name: string;
+    category: Category;
+    severity: Severity;
+    description: string;
+    fixable: boolean;
+}
 
-export type { Category, Finding, Fix, HealthScore, ScanResult, Severity, SourceLocation, Suggestion };
+export type { Category, Finding, Fix, HealthScore, RuleMetadata, ScanResult, Severity, SourceLocation, Suggestion };

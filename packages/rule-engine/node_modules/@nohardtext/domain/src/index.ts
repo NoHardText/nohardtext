@@ -45,3 +45,12 @@ export interface HealthScore {
   score: number;
   grade: "AAA" | "AA" | "A" | "B" | "C" | "D" | "F";
 }
+
+export interface RuleMetadata {
+  id: string;
+  name: string;
+  category: Category;
+  severity: Severity;
+  description: string;
+  fixable: boolean;
+}
