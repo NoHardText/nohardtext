@@ -19,6 +19,9 @@ Current focus:
 - Rule metadata
 - Localization score
 - "Can I ship?" release confidence
+- JSON reports
+- CI failure threshold
+- Lightweight config support
 
 ---
 
@@ -36,13 +39,13 @@ It helps answer:
 
 ## Current Rules
 
-| Rule ID | Rule | Description |
-|---|---|---|
-| NHT1001 | JSX Text | Detects hardcoded JSX text |
-| NHT1002 | Placeholder Attribute | Detects hardcoded placeholder values |
-| NHT1003 | Title Attribute | Detects hardcoded title values |
-| NHT1004 | ARIA Label | Detects hardcoded aria-label values |
-| NHT1005 | Alt Attribute | Detects hardcoded image alt text |
+| Rule ID | Rule | Category | Severity | Description |
+|---|---|---|---|---|
+| NHT1001 | JSX Text | localization | high | Detects hardcoded JSX text |
+| NHT1002 | Placeholder Attribute | localization | high | Detects hardcoded placeholder values |
+| NHT1003 | Title Attribute | localization | high | Detects hardcoded title values |
+| NHT1004 | ARIA Label | accessibility | high | Detects hardcoded aria-label values |
+| NHT1005 | Alt Attribute | accessibility | high | Detects hardcoded image alt text |
 
 ---
 
@@ -75,10 +78,81 @@ User-facing JSX text should be moved to localization files.
 
 ---
 
+## JSON Output
+
+```bash
+node packages/cli/dist/index.js scan examples/react-basic/src --json
+```
+
+This output is intended for future GitHub Action, MCP, VS Code, and CI integrations.
+
+---
+
+## CI Failure Threshold
+
+```bash
+node packages/cli/dist/index.js scan src --fail-on high
+```
+
+Allowed severities:
+
+- info
+- low
+- medium
+- high
+- critical
+
+Example:
+
+```bash
+node packages/cli/dist/index.js scan src --fail-on critical
+```
+
+---
+
 ## List Supported Rules
 
 ```bash
 node packages/cli/dist/index.js rules
+```
+
+---
+
+## Configuration
+
+NoHardText supports a root config file:
+
+```txt
+nohardtext.config.json
+```
+
+Example:
+
+```json
+{
+  "ignore": [
+    "node_modules",
+    "dist",
+    "coverage",
+    ".git",
+    ".next",
+    "build",
+    "out"
+  ],
+  "failOn": "high"
+}
+```
+
+`ignore` controls directories skipped during scan.
+
+`failOn` controls CI failure threshold.
+
+CLI flags take priority over config.
+
+See:
+
+```txt
+docs/engineering/CONFIG_SPEC.md
 ```
 
 ---
@@ -109,6 +183,18 @@ Run the CLI demo:
 node packages/cli/dist/index.js scan examples/react-basic/src
 ```
 
+Run JSON demo:
+
+```bash
+node packages/cli/dist/index.js scan examples/react-basic/src --json
+```
+
+Run CI-style check:
+
+```bash
+node packages/cli/dist/index.js scan examples/react-basic/src --fail-on high
+```
+
 ---
 
 ## Packages
@@ -125,19 +211,28 @@ packages/
 
 ---
 
+## Sprint Status
+
+Sprint 0 — Foundation: Done  
+Sprint 1 — Hello World Scan: Done  
+Sprint 2 — Rule System Cleanup: Done  
+Sprint 3 — Real-world Detection: Next
+
+---
+
 ## Product Direction
 
 NoHardText is designed to become the ESLint of localization quality.
 
 Future versions will include:
 
-- Config file support
-- JSON reports
-- CI failure modes
-- More real-world rules
+- Stronger real-world detection
+- False-positive reduction
+- Rule enable/disable config
+- JSON reports for CI
+- GitHub Action
 - Auto-fix
 - VS Code extension
-- GitHub Action
 - MCP server
 
 ---
