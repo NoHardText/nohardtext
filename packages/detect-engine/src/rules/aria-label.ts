@@ -6,6 +6,7 @@ export function detectAriaLabelText(filePath: string, sourceText: string) {
     ruleId: "NHT1004",
     messagePrefix: "Hardcoded aria-label found",
     explanation: "User-facing accessibility labels should be moved to localization files.",
-    suggestion: "Extract this aria-label to a localization key."
+    suggestion: "Extract this aria-label to a localization key.",
+    category: "accessibility"
   });
 }

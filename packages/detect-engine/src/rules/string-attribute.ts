@@ -1,4 +1,4 @@
-import type { Finding } from "@nohardtext/domain";
+import type { Category, Finding, Severity } from "@nohardtext/domain";
 import { collectJsxAttributeStringValues } from "@nohardtext/parser";
 import { isProbablyLocalizableText } from "./text-utils";
 
@@ -8,6 +8,8 @@ export interface AttributeRuleConfig {
   messagePrefix: string;
   explanation: string;
   suggestion: string;
+  category?: Category;
+  severity?: Severity;
 }
 
 export function detectStringAttribute(
@@ -20,8 +22,8 @@ export function detectStringAttribute(
     .map((node, index) => ({
       id: `${filePath}:${config.ruleId}:${node.startLine}:${node.startColumn}:${index}`,
       ruleId: config.ruleId,
-      severity: "high",
-      category: "localization",
+      severity: config.severity ?? "high",
+      category: config.category ?? "localization",
       message: `${config.messagePrefix}: "${node.value}"`,
       explanation: config.explanation,
       location: {

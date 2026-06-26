@@ -37,8 +37,8 @@ function detectStringAttribute(filePath, sourceText, config) {
   return collectJsxAttributeStringValues(sourceText, [config.attributeName]).filter((node) => isProbablyLocalizableText(node.value)).map((node, index) => ({
     id: `${filePath}:${config.ruleId}:${node.startLine}:${node.startColumn}:${index}`,
     ruleId: config.ruleId,
-    severity: "high",
-    category: "localization",
+    severity: config.severity ?? "high",
+    category: config.category ?? "localization",
     message: `${config.messagePrefix}: "${node.value}"`,
     explanation: config.explanation,
     location: {
@@ -64,7 +64,8 @@ function detectAltAttributeText(filePath, sourceText) {
     ruleId: "NHT1005",
     messagePrefix: "Hardcoded alt attribute found",
     explanation: "User-facing image alt text should be moved to localization files.",
-    suggestion: "Extract this alt text to a localization key."
+    suggestion: "Extract this alt text to a localization key.",
+    category: "accessibility"
   });
 }
 
@@ -75,7 +76,8 @@ function detectAriaLabelText(filePath, sourceText) {
     ruleId: "NHT1004",
     messagePrefix: "Hardcoded aria-label found",
     explanation: "User-facing accessibility labels should be moved to localization files.",
-    suggestion: "Extract this aria-label to a localization key."
+    suggestion: "Extract this aria-label to a localization key.",
+    category: "accessibility"
   });
 }
 
