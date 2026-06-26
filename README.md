@@ -46,7 +46,7 @@ It helps answer:
 | NHT1003 | Title Attribute | localization | high | Detects hardcoded title values |
 | NHT1004 | ARIA Label | accessibility | high | Detects hardcoded aria-label values |
 | NHT1005 | Alt Attribute | accessibility | high | Detects hardcoded image alt text |
-
+| NHT1006 | Component Text Prop | Detects hardcoded text passed through common component props |
 ---
 
 ## CLI Demo

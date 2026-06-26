@@ -11,8 +11,33 @@
 | NHT1003 | Title Attribute | Implemented | Detects hardcoded `title` attribute values. |
 | NHT1004 | ARIA Label | Implemented | Detects hardcoded `aria-label` attribute values. |
 | NHT1005 | Alt Attribute | Implemented | Detects hardcoded `alt` attribute values. |
+## NHT1006 — Component Text Prop
 
+Detects hardcoded user-facing text passed through common component props.
+
+Examples:
+
+```tsx
+<Button label="Save" />
+<EmptyState description="Try another search" />
+<Modal confirmText="Delete" cancelText="Cancel" />
 ---
+Current supported prop names:
+
+label
+description
+helperText
+emptyText
+confirmText
+cancelText
+submitText
+closeText
+primaryText
+secondaryText
+
+Severity: high
+Category: localization
+Fixable: yes
 
 ## Rule Template
 

@@ -31,7 +31,7 @@ Make the rule system organized, metadata-driven, and ready for configuration, CI
 | NHT1003 | Title Attribute | localization | high |
 | NHT1004 | ARIA Label | accessibility | high |
 | NHT1005 | Alt Attribute | accessibility | high |
-
+| NHT1006 | Component Text Prop | localization | high |
 ## CLI Capabilities
 
 ```bash
