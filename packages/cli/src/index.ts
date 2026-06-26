@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync, statSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
-import { detect } from "@nohardtext/detect-engine";
+import { detect, getBuiltInRuleMetadata } from "@nohardtext/detect-engine";
 import { createReportSummary } from "@nohardtext/report-engine";
 
 const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
@@ -36,6 +36,28 @@ function collectFiles(targetPath: string): string[] {
 
     return isSupportedFile(fullPath) ? [fullPath] : [];
   });
+}
+
+export function runRulesList(): string {
+  const rules = getBuiltInRuleMetadata();
+
+  const lines = [
+    getCliBanner(),
+    "",
+    "Supported rules:",
+    ""
+  ];
+
+  for (const rule of rules) {
+    lines.push(`${rule.id}  ${rule.name}`);
+    lines.push(`  Category: ${rule.category}`);
+    lines.push(`  Severity: ${rule.severity}`);
+    lines.push(`  Fixable: ${rule.fixable ? "yes" : "no"}`);
+    lines.push(`  ${rule.description}`);
+    lines.push("");
+  }
+
+  return lines.join("\n");
 }
 
 export function runScan(targetPath: string, cwd = process.cwd()): string {
@@ -73,15 +95,23 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
   const [command, target = "."] = args;
 
   if (!command || command === "--help" || command === "-h") {
-    console.log("Usage: nohardtext scan <path>");
+    console.log("Usage:");
+    console.log("  nohardtext scan <path>");
+    console.log("  nohardtext rules");
     return;
   }
 
-  if (command !== "scan") {
-    throw new Error(`Unknown command: ${command}`);
+  if (command === "rules") {
+    console.log(runRulesList());
+    return;
   }
 
-  console.log(runScan(target));
+  if (command === "scan") {
+    console.log(runScan(target));
+    return;
+  }
+
+  throw new Error(`Unknown command: ${command}`);
 }
 
 if (process.argv[1]?.endsWith("index.js")) {

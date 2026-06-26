@@ -3,7 +3,7 @@
 // src/index.ts
 import { existsSync, readFileSync, statSync, readdirSync } from "fs";
 import { join, relative } from "path";
-import { detect } from "@nohardtext/detect-engine";
+import { detect, getBuiltInRuleMetadata } from "@nohardtext/detect-engine";
 import { createReportSummary } from "@nohardtext/report-engine";
 var SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
 function getCliBanner() {
@@ -28,6 +28,24 @@ function collectFiles(targetPath) {
     }
     return isSupportedFile(fullPath) ? [fullPath] : [];
   });
+}
+function runRulesList() {
+  const rules = getBuiltInRuleMetadata();
+  const lines = [
+    getCliBanner(),
+    "",
+    "Supported rules:",
+    ""
+  ];
+  for (const rule of rules) {
+    lines.push(`${rule.id}  ${rule.name}`);
+    lines.push(`  Category: ${rule.category}`);
+    lines.push(`  Severity: ${rule.severity}`);
+    lines.push(`  Fixable: ${rule.fixable ? "yes" : "no"}`);
+    lines.push(`  ${rule.description}`);
+    lines.push("");
+  }
+  return lines.join("\n");
 }
 function runScan(targetPath, cwd = process.cwd()) {
   const files = collectFiles(targetPath);
@@ -58,13 +76,20 @@ function runScan(targetPath, cwd = process.cwd()) {
 async function runCli(args = process.argv.slice(2)) {
   const [command, target = "."] = args;
   if (!command || command === "--help" || command === "-h") {
-    console.log("Usage: nohardtext scan <path>");
+    console.log("Usage:");
+    console.log("  nohardtext scan <path>");
+    console.log("  nohardtext rules");
     return;
   }
-  if (command !== "scan") {
-    throw new Error(`Unknown command: ${command}`);
+  if (command === "rules") {
+    console.log(runRulesList());
+    return;
   }
-  console.log(runScan(target));
+  if (command === "scan") {
+    console.log(runScan(target));
+    return;
+  }
+  throw new Error(`Unknown command: ${command}`);
 }
 if (process.argv[1]?.endsWith("index.js")) {
   runCli().catch((error) => {
@@ -75,5 +100,6 @@ if (process.argv[1]?.endsWith("index.js")) {
 export {
   getCliBanner,
   runCli,
+  runRulesList,
   runScan
 };
