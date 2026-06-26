@@ -2,6 +2,7 @@ import { parse } from "@babel/parser";
 import traverseModule from "@babel/traverse";
 import type { NodePath, TraverseOptions } from "@babel/traverse";
 import type { File, JSXAttribute, JSXText } from "@babel/types";
+import type { JSXExpressionContainer } from "@babel/types";
 
 type TraverseFn = (parent: File, opts: TraverseOptions) => void;
 
@@ -94,4 +95,43 @@ export function collectJsxAttributeStringValues(
   });
 
   return results;
+}
+
+export interface JsxExpressionStringNode {
+  value: string;
+  startLine: number;
+  startColumn: number;
+  endLine: number;
+  endColumn: number;
+}
+
+export function collectJsxExpressionStringValues(source: string): JsxExpressionStringNode[] {
+  const ast = parseSource(source);
+  const nodes: JsxExpressionStringNode[] = [];
+
+  traverse(ast, {
+    JSXExpressionContainer(path: NodePath<JSXExpressionContainer>) {
+      const expression = path.node.expression;
+
+      if (expression.type !== "StringLiteral") {
+        return;
+      }
+
+      const value = expression.value.trim();
+
+      if (!value || !expression.loc) {
+        return;
+      }
+
+      nodes.push({
+        value,
+        startLine: expression.loc.start.line,
+        startColumn: expression.loc.start.column,
+        endLine: expression.loc.end.line,
+        endColumn: expression.loc.end.column
+      });
+    }
+  });
+
+  return nodes;
 }

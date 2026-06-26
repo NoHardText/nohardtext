@@ -51,8 +51,33 @@ function collectJsxAttributeStringValues(source, attributeNames) {
   });
   return results;
 }
+function collectJsxExpressionStringValues(source) {
+  const ast = parseSource(source);
+  const nodes = [];
+  traverse(ast, {
+    JSXExpressionContainer(path) {
+      const expression = path.node.expression;
+      if (expression.type !== "StringLiteral") {
+        return;
+      }
+      const value = expression.value.trim();
+      if (!value || !expression.loc) {
+        return;
+      }
+      nodes.push({
+        value,
+        startLine: expression.loc.start.line,
+        startColumn: expression.loc.start.column,
+        endLine: expression.loc.end.line,
+        endColumn: expression.loc.end.column
+      });
+    }
+  });
+  return nodes;
+}
 export {
   collectJsxAttributeStringValues,
+  collectJsxExpressionStringValues,
   collectJsxTextNodes,
   parseSource
 };

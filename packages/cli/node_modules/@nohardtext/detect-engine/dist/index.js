@@ -80,9 +80,12 @@ function detectAriaLabelText(filePath, sourceText) {
 }
 
 // src/rules/jsx-text.ts
-import { collectJsxTextNodes } from "@nohardtext/parser";
-function detectJsxText(filePath, sourceText) {
-  return collectJsxTextNodes(sourceText).filter((node) => isProbablyLocalizableText(node.text)).map((node, index) => ({
+import {
+  collectJsxExpressionStringValues,
+  collectJsxTextNodes
+} from "@nohardtext/parser";
+function createJsxTextFinding(filePath, node, index) {
+  return {
     id: `${filePath}:NHT1001:${node.startLine}:${node.startColumn}:${index}`,
     ruleId: "NHT1001",
     severity: "high",
@@ -102,7 +105,24 @@ function detectJsxText(filePath, sourceText) {
         message: "Replace the text with a localized translation key."
       }
     ]
+  };
+}
+function detectJsxText(filePath, sourceText) {
+  const textNodes = collectJsxTextNodes(sourceText).map((node) => ({
+    text: node.text,
+    startLine: node.startLine,
+    startColumn: node.startColumn,
+    endLine: node.endLine,
+    endColumn: node.endColumn
   }));
+  const expressionStringNodes = collectJsxExpressionStringValues(sourceText).map((node) => ({
+    text: node.value,
+    startLine: node.startLine,
+    startColumn: node.startColumn,
+    endLine: node.endLine,
+    endColumn: node.endColumn
+  }));
+  return [...textNodes, ...expressionStringNodes].filter((node) => isProbablyLocalizableText(node.text)).map((node, index) => createJsxTextFinding(filePath, node, index));
 }
 
 // src/rules/placeholder.ts
