@@ -59,8 +59,10 @@ function runScan(targetPath, cwd = process.cwd()) {
     "",
     `Scanned files: ${files.length}`,
     `Findings: ${summary.totalFindings}`,
+    `Can I ship? ${summary.shipDecision === "yes" ? "Yes" : summary.shipDecision === "warning" ? "With warnings" : "No"}`,
+    `Reason: ${summary.shipReason}`,
     `Localization grade: ${summary.healthScore.grade}`,
-    `Localization score: ${summary.healthScore.score}`,
+    `Localization score: ${summary.healthScore.score} / 100`,
     ""
   ];
   for (const finding of findings) {
