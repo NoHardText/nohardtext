@@ -1,45 +1,8 @@
 // src/index.ts
-import {
-  collectJsxAttributeStringValues,
-  collectJsxTextNodes
-} from "@nohardtext/parser";
 import { runRules } from "@nohardtext/rule-engine";
-function detect(input) {
-  const ruleFindings = input.rules ? runRules(input.rules, {
-    filePath: input.filePath,
-    sourceText: input.sourceText
-  }) : [];
-  return {
-    filePath: input.filePath,
-    findings: [
-      ...ruleFindings,
-      ...detectJsxText(input.filePath, input.sourceText),
-      ...detectPlaceholderText(input.filePath, input.sourceText),
-      ...detectTitleAttributeText(input.filePath, input.sourceText),
-      ...detectAriaLabelText(input.filePath, input.sourceText),
-      ...detectAltAttributeText(input.filePath, input.sourceText)
-    ]
-  };
-}
-function detectJsxText(filePath, sourceText) {
-  return collectJsxTextNodes(sourceText).map((node, index) => ({
-    id: `${filePath}:NHT1001:${node.startLine}:${node.startColumn}:${index}`,
-    ruleId: "NHT1001",
-    severity: "high",
-    category: "localization",
-    message: `Hardcoded JSX text found: "${node.text}"`,
-    explanation: "User-facing JSX text should be moved to localization files.",
-    location: {
-      filePath,
-      startLine: node.startLine,
-      startColumn: node.startColumn,
-      endLine: node.endLine,
-      endColumn: node.endColumn
-    },
-    fixable: true,
-    suggestions: [{ message: "Extract this text to a localization key." }]
-  }));
-}
+
+// src/rules/string-attribute.ts
+import { collectJsxAttributeStringValues } from "@nohardtext/parser";
 function detectStringAttribute(filePath, sourceText, config) {
   return collectJsxAttributeStringValues(sourceText, [config.attributeName]).map((node, index) => ({
     id: `${filePath}:${config.ruleId}:${node.startLine}:${node.startColumn}:${index}`,
@@ -59,24 +22,19 @@ function detectStringAttribute(filePath, sourceText, config) {
     suggestions: [{ message: config.suggestion }]
   }));
 }
-function detectPlaceholderText(filePath, sourceText) {
+
+// src/rules/alt.ts
+function detectAltAttributeText(filePath, sourceText) {
   return detectStringAttribute(filePath, sourceText, {
-    attributeName: "placeholder",
-    ruleId: "NHT1002",
-    messagePrefix: "Hardcoded placeholder found",
-    explanation: "User-facing placeholder text should be moved to localization files.",
-    suggestion: "Extract this placeholder to a localization key."
+    attributeName: "alt",
+    ruleId: "NHT1005",
+    messagePrefix: "Hardcoded alt attribute found",
+    explanation: "User-facing image alt text should be moved to localization files.",
+    suggestion: "Extract this alt text to a localization key."
   });
 }
-function detectTitleAttributeText(filePath, sourceText) {
-  return detectStringAttribute(filePath, sourceText, {
-    attributeName: "title",
-    ruleId: "NHT1003",
-    messagePrefix: "Hardcoded title attribute found",
-    explanation: "User-facing title attributes should be moved to localization files.",
-    suggestion: "Extract this title attribute to a localization key."
-  });
-}
+
+// src/rules/aria-label.ts
 function detectAriaLabelText(filePath, sourceText) {
   return detectStringAttribute(filePath, sourceText, {
     attributeName: "aria-label",
@@ -86,14 +44,68 @@ function detectAriaLabelText(filePath, sourceText) {
     suggestion: "Extract this aria-label to a localization key."
   });
 }
-function detectAltAttributeText(filePath, sourceText) {
+
+// src/rules/jsx-text.ts
+import { collectJsxTextNodes } from "@nohardtext/parser";
+function detectJsxText(filePath, sourceText) {
+  return collectJsxTextNodes(sourceText).map((node, index) => ({
+    id: `${filePath}:NHT1001:${node.startLine}:${node.startColumn}:${index}`,
+    ruleId: "NHT1001",
+    severity: "high",
+    category: "localization",
+    message: `Hardcoded JSX text found: "${node.text}"`,
+    explanation: "User-facing JSX text should be moved to localization files.",
+    location: {
+      filePath,
+      startLine: node.startLine,
+      startColumn: node.startColumn,
+      endLine: node.endLine,
+      endColumn: node.endColumn
+    },
+    fixable: true,
+    suggestions: [{ message: "Extract this text to a localization key." }]
+  }));
+}
+
+// src/rules/placeholder.ts
+function detectPlaceholderText(filePath, sourceText) {
   return detectStringAttribute(filePath, sourceText, {
-    attributeName: "alt",
-    ruleId: "NHT1005",
-    messagePrefix: "Hardcoded alt attribute found",
-    explanation: "User-facing image alt text should be moved to localization files.",
-    suggestion: "Extract this alt text to a localization key."
+    attributeName: "placeholder",
+    ruleId: "NHT1002",
+    messagePrefix: "Hardcoded placeholder found",
+    explanation: "User-facing placeholder text should be moved to localization files.",
+    suggestion: "Extract this placeholder to a localization key."
   });
+}
+
+// src/rules/title.ts
+function detectTitleAttributeText(filePath, sourceText) {
+  return detectStringAttribute(filePath, sourceText, {
+    attributeName: "title",
+    ruleId: "NHT1003",
+    messagePrefix: "Hardcoded title attribute found",
+    explanation: "User-facing title attributes should be moved to localization files.",
+    suggestion: "Extract this title attribute to a localization key."
+  });
+}
+
+// src/index.ts
+function detect(input) {
+  const ruleFindings = input.rules ? runRules(input.rules, {
+    filePath: input.filePath,
+    sourceText: input.sourceText
+  }) : [];
+  return {
+    filePath: input.filePath,
+    findings: [
+      ...ruleFindings,
+      ...detectJsxText(input.filePath, input.sourceText),
+      ...detectPlaceholderText(input.filePath, input.sourceText),
+      ...detectTitleAttributeText(input.filePath, input.sourceText),
+      ...detectAriaLabelText(input.filePath, input.sourceText),
+      ...detectAltAttributeText(input.filePath, input.sourceText)
+    ]
+  };
 }
 export {
   detect,
