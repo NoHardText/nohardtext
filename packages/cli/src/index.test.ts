@@ -88,9 +88,27 @@ describe("@nohardtext/cli", () => {
       version: "0.0.0",
     });
 
+    expect(parsed.ci).toEqual({
+      enabled: false,
+      passed: true,
+    });
+
     expect(parsed.scannedFiles).toBe(1);
     expect(parsed.findings.length).toBeGreaterThan(0);
     expect(parsed.summary.totalFindings).toBe(parsed.findings.length);
+  });
+
+  it("returns CI metadata in JSON scan output", () => {
+    const output = runScanJson("../../examples/react-basic/src", process.cwd(), {}, {
+      failOn: "high",
+    });
+    const parsed = JSON.parse(output);
+
+    expect(parsed.ci).toEqual({
+      enabled: true,
+      failOn: "high",
+      passed: false,
+    });
   });
 
   it("detects CI failure threshold", () => {

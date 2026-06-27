@@ -134,7 +134,7 @@ function runRulesList() {
   }
   return lines.join("\n");
 }
-function createScanOutput(targetPath, cwd = process.cwd(), config = {}) {
+function createScanOutput(targetPath, cwd = process.cwd(), config = {}, options = {}) {
   const ignoredDirectories = getIgnoredDirectories(config);
   const files = collectFiles(targetPath, ignoredDirectories);
   const findings = files.flatMap((filePath) => {
@@ -147,6 +147,8 @@ function createScanOutput(targetPath, cwd = process.cwd(), config = {}) {
       }
     }).findings;
   });
+  const summary = createReportSummary({ findings });
+  const failOn = options.failOn ?? config.failOn;
   return {
     schemaVersion: "1.0",
     tool: {
@@ -155,7 +157,12 @@ function createScanOutput(targetPath, cwd = process.cwd(), config = {}) {
     },
     scannedFiles: files.length,
     findings,
-    summary: createReportSummary({ findings })
+    summary,
+    ci: {
+      enabled: Boolean(failOn),
+      failOn,
+      passed: !shouldFail(findings, failOn)
+    }
   };
 }
 function formatScanOutput(output, options = { json: false }) {
@@ -174,11 +181,9 @@ function formatScanOutput(output, options = { json: false }) {
     `Localization score: ${summary.healthScore.score} / 100`,
     ""
   ];
-  if (options.failOn) {
-    lines.push(`Fail on: ${options.failOn}`);
-    lines.push(
-      `CI result: ${shouldFail(output.findings, options.failOn) ? "failed" : "passed"}`
-    );
+  if (output.ci.enabled && output.ci.failOn) {
+    lines.push(`Fail on: ${output.ci.failOn}`);
+    lines.push(`CI result: ${output.ci.passed ? "passed" : "failed"}`);
     lines.push("");
   }
   for (const finding of output.findings) {
@@ -197,10 +202,13 @@ function formatScanOutput(output, options = { json: false }) {
   return lines.join("\n");
 }
 function runScan(targetPath, cwd = process.cwd(), options = { json: false }, config = {}) {
-  return formatScanOutput(createScanOutput(targetPath, cwd, config), options);
+  return formatScanOutput(
+    createScanOutput(targetPath, cwd, config, { failOn: options.failOn }),
+    options
+  );
 }
-function runScanJson(targetPath, cwd = process.cwd(), config = {}) {
-  return JSON.stringify(createScanOutput(targetPath, cwd, config), null, 2);
+function runScanJson(targetPath, cwd = process.cwd(), config = {}, options = {}) {
+  return JSON.stringify(createScanOutput(targetPath, cwd, config, options), null, 2);
 }
 async function runCli(args = process.argv.slice(2)) {
   const parsedOptions = parseOptions(args);
@@ -224,11 +232,13 @@ async function runCli(args = process.argv.slice(2)) {
       ...parsedOptions,
       failOn: parsedOptions.failOn ?? config.failOn
     };
-    const output = createScanOutput(target, process.cwd(), config);
+    const output = createScanOutput(target, process.cwd(), config, {
+      failOn: options.failOn
+    });
     console.log(
       options.json ? JSON.stringify(output, null, 2) : formatScanOutput(output, options)
     );
-    if (shouldFail(output.findings, options.failOn)) {
+    if (!output.ci.passed) {
       process.exitCode = 1;
     }
     return;

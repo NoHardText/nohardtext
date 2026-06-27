@@ -44,10 +44,19 @@ export interface ScanOutput {
   scannedFiles: number;
   findings: Finding[];
   summary: ReportSummary;
+  ci: {
+    enabled: boolean;
+    failOn?: Severity;
+    passed: boolean;
+  };
 }
 
 export interface CliOptions {
   json: boolean;
+  failOn?: Severity;
+}
+
+export interface ScanOutputOptions {
   failOn?: Severity;
 }
 
@@ -217,6 +226,7 @@ export function createScanOutput(
   targetPath: string,
   cwd = process.cwd(),
   config: NoHardTextConfig = {},
+  options: ScanOutputOptions = {},
 ): ScanOutput {
   const ignoredDirectories = getIgnoredDirectories(config);
   const files = collectFiles(targetPath, ignoredDirectories);
@@ -233,6 +243,9 @@ export function createScanOutput(
     }).findings;
   });
 
+  const summary = createReportSummary({ findings });
+  const failOn = options.failOn ?? config.failOn;
+
   return {
     schemaVersion: "1.0",
     tool: {
@@ -241,7 +254,12 @@ export function createScanOutput(
     },
     scannedFiles: files.length,
     findings,
-    summary: createReportSummary({ findings }),
+    summary,
+    ci: {
+      enabled: Boolean(failOn),
+      failOn,
+      passed: !shouldFail(findings, failOn),
+    },
   };
 }
 
@@ -267,11 +285,9 @@ export function formatScanOutput(
     "",
   ];
 
-  if (options.failOn) {
-    lines.push(`Fail on: ${options.failOn}`);
-    lines.push(
-      `CI result: ${shouldFail(output.findings, options.failOn) ? "failed" : "passed"}`,
-    );
+  if (output.ci.enabled && output.ci.failOn) {
+    lines.push(`Fail on: ${output.ci.failOn}`);
+    lines.push(`CI result: ${output.ci.passed ? "passed" : "failed"}`);
     lines.push("");
   }
 
@@ -299,15 +315,19 @@ export function runScan(
   options: CliOptions = { json: false },
   config: NoHardTextConfig = {},
 ): string {
-  return formatScanOutput(createScanOutput(targetPath, cwd, config), options);
+  return formatScanOutput(
+    createScanOutput(targetPath, cwd, config, { failOn: options.failOn }),
+    options,
+  );
 }
 
 export function runScanJson(
   targetPath: string,
   cwd = process.cwd(),
   config: NoHardTextConfig = {},
+  options: ScanOutputOptions = {},
 ): string {
-  return JSON.stringify(createScanOutput(targetPath, cwd, config), null, 2);
+  return JSON.stringify(createScanOutput(targetPath, cwd, config, options), null, 2);
 }
 
 export async function runCli(args = process.argv.slice(2)): Promise<void> {
@@ -337,7 +357,9 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
       failOn: parsedOptions.failOn ?? config.failOn,
     };
 
-    const output = createScanOutput(target, process.cwd(), config);
+    const output = createScanOutput(target, process.cwd(), config, {
+      failOn: options.failOn,
+    });
 
     console.log(
       options.json
@@ -345,7 +367,7 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
         : formatScanOutput(output, options),
     );
 
-    if (shouldFail(output.findings, options.failOn)) {
+    if (!output.ci.passed) {
       process.exitCode = 1;
     }
 
