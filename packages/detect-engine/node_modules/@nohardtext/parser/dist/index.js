@@ -52,6 +52,60 @@ function collectJsxTextNodes(source) {
   });
   return results;
 }
+function getStaticStringFromAttributeValue(valueNode) {
+  if (!valueNode) {
+    return void 0;
+  }
+  if (valueNode.type === "StringLiteral") {
+    const value = valueNode.value.trim();
+    if (!value || !valueNode.loc) {
+      return void 0;
+    }
+    return {
+      value,
+      startLine: valueNode.loc.start.line,
+      startColumn: valueNode.loc.start.column + 1,
+      endLine: valueNode.loc.end.line,
+      endColumn: valueNode.loc.end.column + 1
+    };
+  }
+  if (valueNode.type !== "JSXExpressionContainer") {
+    return void 0;
+  }
+  const expression = valueNode.expression;
+  if (expression.type === "StringLiteral") {
+    const value = expression.value.trim();
+    if (!value || !expression.loc) {
+      return void 0;
+    }
+    return {
+      value,
+      startLine: expression.loc.start.line,
+      startColumn: expression.loc.start.column + 1,
+      endLine: expression.loc.end.line,
+      endColumn: expression.loc.end.column + 1
+    };
+  }
+  if (expression.type === "TemplateLiteral") {
+    const quasis = expression.quasis ?? [];
+    const expressions = expression.expressions ?? [];
+    if (expressions.length > 0 || quasis.length !== 1) {
+      return void 0;
+    }
+    const value = (quasis[0]?.value?.cooked ?? quasis[0]?.value?.raw ?? "").trim();
+    if (!value || !expression.loc) {
+      return void 0;
+    }
+    return {
+      value,
+      startLine: expression.loc.start.line,
+      startColumn: expression.loc.start.column + 1,
+      endLine: expression.loc.end.line,
+      endColumn: expression.loc.end.column + 1
+    };
+  }
+  return void 0;
+}
 function collectJsxAttributeStringValues(source, attributeNames) {
   const ast = parseSource(source);
   const results = [];
@@ -61,18 +115,16 @@ function collectJsxAttributeStringValues(source, attributeNames) {
       if (nameNode.type !== "JSXIdentifier") return;
       const name = nameNode.name;
       if (!attributeNames.includes(name)) return;
-      const valueNode = path.node.value;
-      if (!valueNode || valueNode.type !== "StringLiteral" || !valueNode.loc) return;
-      const value = valueNode.value.trim();
-      if (!value) return;
+      const valueResult = getStaticStringFromAttributeValue(path.node.value);
+      if (!valueResult) return;
       results.push({
         name,
-        value,
+        value: valueResult.value,
         elementName: getAttributeElementName(path),
-        startLine: valueNode.loc.start.line,
-        startColumn: valueNode.loc.start.column + 1,
-        endLine: valueNode.loc.end.line,
-        endColumn: valueNode.loc.end.column + 1
+        startLine: valueResult.startLine,
+        startColumn: valueResult.startColumn,
+        endLine: valueResult.endLine,
+        endColumn: valueResult.endColumn
       });
     }
   });

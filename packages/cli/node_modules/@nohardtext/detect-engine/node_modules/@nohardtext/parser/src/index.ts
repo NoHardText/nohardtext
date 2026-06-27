@@ -6,10 +6,8 @@ import type { JSXExpressionContainer } from "@babel/types";
 
 type TraverseFn = (parent: File, opts: TraverseOptions) => void;
 
-const traverse = (
-  (traverseModule as unknown as { default?: TraverseFn }).default ??
-  traverseModule
-) as unknown as TraverseFn;
+const traverse = ((traverseModule as unknown as { default?: TraverseFn })
+  .default ?? traverseModule) as unknown as TraverseFn;
 
 export interface JsxTextNode {
   text: string;
@@ -32,7 +30,7 @@ export interface JsxAttributeStringNode {
 export function parseSource(source: string): File {
   return parse(source, {
     sourceType: "module",
-    plugins: ["typescript", "jsx"]
+    plugins: ["typescript", "jsx"],
   });
 }
 
@@ -62,7 +60,9 @@ function getJsxElementName(nameNode: any): string | undefined {
   return undefined;
 }
 
-function getAttributeElementName(path: NodePath<JSXAttribute>): string | undefined {
+function getAttributeElementName(
+  path: NodePath<JSXAttribute>,
+): string | undefined {
   const parent = path.parent as any;
 
   if (parent?.type !== "JSXOpeningElement") {
@@ -87,17 +87,98 @@ export function collectJsxTextNodes(source: string): JsxTextNode[] {
         startLine: path.node.loc.start.line,
         startColumn: path.node.loc.start.column + 1,
         endLine: path.node.loc.end.line,
-        endColumn: path.node.loc.end.column + 1
+        endColumn: path.node.loc.end.column + 1,
       });
-    }
+    },
   });
 
   return results;
 }
 
+function getStaticStringFromAttributeValue(valueNode: JSXAttribute["value"]):
+  | {
+      value: string;
+      startLine: number;
+      startColumn: number;
+      endLine: number;
+      endColumn: number;
+    }
+  | undefined {
+  if (!valueNode) {
+    return undefined;
+  }
+
+  if (valueNode.type === "StringLiteral") {
+    const value = valueNode.value.trim();
+
+    if (!value || !valueNode.loc) {
+      return undefined;
+    }
+
+    return {
+      value,
+      startLine: valueNode.loc.start.line,
+      startColumn: valueNode.loc.start.column + 1,
+      endLine: valueNode.loc.end.line,
+      endColumn: valueNode.loc.end.column + 1,
+    };
+  }
+
+  if (valueNode.type !== "JSXExpressionContainer") {
+    return undefined;
+  }
+
+  const expression = valueNode.expression;
+
+  if (expression.type === "StringLiteral") {
+    const value = expression.value.trim();
+
+    if (!value || !expression.loc) {
+      return undefined;
+    }
+
+    return {
+      value,
+      startLine: expression.loc.start.line,
+      startColumn: expression.loc.start.column + 1,
+      endLine: expression.loc.end.line,
+      endColumn: expression.loc.end.column + 1,
+    };
+  }
+
+  if (expression.type === "TemplateLiteral") {
+    const quasis = expression.quasis ?? [];
+    const expressions = expression.expressions ?? [];
+
+    if (expressions.length > 0 || quasis.length !== 1) {
+      return undefined;
+    }
+
+    const value = (
+      quasis[0]?.value?.cooked ??
+      quasis[0]?.value?.raw ??
+      ""
+    ).trim();
+
+    if (!value || !expression.loc) {
+      return undefined;
+    }
+
+    return {
+      value,
+      startLine: expression.loc.start.line,
+      startColumn: expression.loc.start.column + 1,
+      endLine: expression.loc.end.line,
+      endColumn: expression.loc.end.column + 1,
+    };
+  }
+
+  return undefined;
+}
+
 export function collectJsxAttributeStringValues(
   source: string,
-  attributeNames: string[]
+  attributeNames: string[],
 ): JsxAttributeStringNode[] {
   const ast = parseSource(source);
   const results: JsxAttributeStringNode[] = [];
@@ -112,24 +193,20 @@ export function collectJsxAttributeStringValues(
 
       if (!attributeNames.includes(name)) return;
 
-      const valueNode = path.node.value;
+      const valueResult = getStaticStringFromAttributeValue(path.node.value);
 
-      if (!valueNode || valueNode.type !== "StringLiteral" || !valueNode.loc) return;
-
-      const value = valueNode.value.trim();
-
-      if (!value) return;
+      if (!valueResult) return;
 
       results.push({
         name,
-        value,
+        value: valueResult.value,
         elementName: getAttributeElementName(path),
-        startLine: valueNode.loc.start.line,
-        startColumn: valueNode.loc.start.column + 1,
-        endLine: valueNode.loc.end.line,
-        endColumn: valueNode.loc.end.column + 1
+        startLine: valueResult.startLine,
+        startColumn: valueResult.startColumn,
+        endLine: valueResult.endLine,
+        endColumn: valueResult.endColumn,
       });
-    }
+    },
   });
 
   return results;
@@ -146,7 +223,7 @@ export interface JsxExpressionStringNode {
 function pushJsxExpressionString(
   nodes: JsxExpressionStringNode[],
   expression: any,
-  value: string
+  value: string,
 ): void {
   const trimmed = value.trim();
 
@@ -159,11 +236,14 @@ function pushJsxExpressionString(
     startLine: expression.loc?.start.line ?? 1,
     startColumn: expression.loc?.start.column ?? 0,
     endLine: expression.loc?.end.line ?? expression.loc?.start.line ?? 1,
-    endColumn: expression.loc?.end.column ?? expression.loc?.start.column ?? 0
+    endColumn: expression.loc?.end.column ?? expression.loc?.start.column ?? 0,
   });
 }
 
-function collectExpressionStrings(expression: any, nodes: JsxExpressionStringNode[]): void {
+function collectExpressionStrings(
+  expression: any,
+  nodes: JsxExpressionStringNode[],
+): void {
   if (!expression) {
     return;
   }
@@ -210,7 +290,9 @@ function collectExpressionStrings(expression: any, nodes: JsxExpressionStringNod
   }
 }
 
-export function collectJsxExpressionStringValues(source: string): JsxExpressionStringNode[] {
+export function collectJsxExpressionStringValues(
+  source: string,
+): JsxExpressionStringNode[] {
   const ast = parseSource(source);
   const nodes: JsxExpressionStringNode[] = [];
 
@@ -221,7 +303,7 @@ export function collectJsxExpressionStringValues(source: string): JsxExpressionS
       }
 
       collectExpressionStrings(path.node.expression, nodes);
-    }
+    },
   });
 
   return nodes;
