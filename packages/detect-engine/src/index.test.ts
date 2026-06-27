@@ -6,7 +6,8 @@ import {
   detectJsxText,
   detectPlaceholderText,
   detectTitleAttributeText,
-  detectCustomComponentPropText
+  detectCustomComponentPropText,
+  sortFindingsByLocation
 } from "./index";
 import type { Rule } from "@nohardtext/rule-engine";
 
@@ -40,6 +41,47 @@ describe("@nohardtext/detect-engine", () => {
 
     expect(findings).toHaveLength(1);
     expect(findings[0]?.ruleId).toBe("NHT1002");
+  });
+
+    it("sorts findings by source location", () => {
+    const sorted = sortFindingsByLocation([
+      {
+        id: "second",
+        ruleId: "NHT1002",
+        severity: "high",
+        category: "localization",
+        message: "Second.",
+        explanation: "Second.",
+        location: {
+          filePath: "src/App.tsx",
+          startLine: 10,
+          startColumn: 1,
+          endLine: 10,
+          endColumn: 5
+        },
+        fixable: true,
+        suggestions: []
+      },
+      {
+        id: "first",
+        ruleId: "NHT1001",
+        severity: "high",
+        category: "localization",
+        message: "First.",
+        explanation: "First.",
+        location: {
+          filePath: "src/App.tsx",
+          startLine: 2,
+          startColumn: 1,
+          endLine: 2,
+          endColumn: 5
+        },
+        fixable: true,
+        suggestions: []
+      }
+    ]);
+
+    expect(sorted.map((finding) => finding.id)).toEqual(["first", "second"]);
   });
 
   it("detects hardcoded title attribute text", () => {
@@ -126,10 +168,10 @@ describe("@nohardtext/detect-engine", () => {
 
     expect(result.findings.map((finding) => finding.ruleId)).toEqual([
       "NHT1001",
-      "NHT1001",
-      "NHT1002",
       "NHT1003",
       "NHT1004",
+      "NHT1001",
+      "NHT1002",
       "NHT1005",
       "NHT1006"
     ]);

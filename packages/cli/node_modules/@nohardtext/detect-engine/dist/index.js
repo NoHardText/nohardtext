@@ -251,6 +251,23 @@ function getBuiltInRuleMetadata() {
 }
 
 // src/index.ts
+function sortFindingsByLocation(findings) {
+  return [...findings].sort((left, right) => {
+    const filePathOrder = left.location.filePath.localeCompare(
+      right.location.filePath
+    );
+    if (filePathOrder !== 0) {
+      return filePathOrder;
+    }
+    if (left.location.startLine !== right.location.startLine) {
+      return left.location.startLine - right.location.startLine;
+    }
+    if (left.location.startColumn !== right.location.startColumn) {
+      return left.location.startColumn - right.location.startColumn;
+    }
+    return left.ruleId.localeCompare(right.ruleId);
+  });
+}
 function detect(input) {
   const ruleFindings = input.rules ? runRules(input.rules, {
     filePath: input.filePath,
@@ -261,7 +278,7 @@ function detect(input) {
   );
   return {
     filePath: input.filePath,
-    findings: [...ruleFindings, ...builtInFindings]
+    findings: sortFindingsByLocation([...ruleFindings, ...builtInFindings])
   };
 }
 export {
@@ -272,5 +289,6 @@ export {
   detectJsxText,
   detectPlaceholderText,
   detectTitleAttributeText,
-  getBuiltInRuleMetadata
+  getBuiltInRuleMetadata,
+  sortFindingsByLocation
 };

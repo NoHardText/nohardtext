@@ -31,12 +31,12 @@ describe("real-world React component detection", () => {
     });
 
     expect(result.findings.map((finding) => finding.message)).toEqual([
+      'Hardcoded component prop "label" found: "Create Project"',
+      'Hardcoded title attribute found: "No projects yet"',
+      'Hardcoded component prop "description" found: "Create your first project to get started"',
       'Hardcoded JSX text found: "Loading..."',
       'Hardcoded JSX text found: "Refresh"',
-      'Hardcoded JSX text found: "Results ready"',
-      'Hardcoded title attribute found: "No projects yet"',
-      'Hardcoded component prop "label" found: "Create Project"',
-      'Hardcoded component prop "description" found: "Create your first project to get started"'
+      'Hardcoded JSX text found: "Results ready"'
     ]);
   });
 });

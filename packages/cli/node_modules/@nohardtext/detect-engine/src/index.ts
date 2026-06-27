@@ -9,6 +9,29 @@ export { detectPlaceholderText } from "./rules/placeholder";
 export { detectTitleAttributeText } from "./rules/title";
 export { getBuiltInRuleMetadata } from "./rules/registry";
 export { detectCustomComponentPropText } from "./rules/custom-component-prop";
+
+export function sortFindingsByLocation(findings: Finding[]): Finding[] {
+  return [...findings].sort((left, right) => {
+    const filePathOrder = left.location.filePath.localeCompare(
+      right.location.filePath,
+    );
+
+    if (filePathOrder !== 0) {
+      return filePathOrder;
+    }
+
+    if (left.location.startLine !== right.location.startLine) {
+      return left.location.startLine - right.location.startLine;
+    }
+
+    if (left.location.startColumn !== right.location.startColumn) {
+      return left.location.startColumn - right.location.startColumn;
+    }
+
+    return left.ruleId.localeCompare(right.ruleId);
+  });
+}
+
 export interface DetectInput {
   filePath: string;
   sourceText: string;
@@ -24,16 +47,16 @@ export function detect(input: DetectInput): DetectResult {
   const ruleFindings = input.rules
     ? runRules(input.rules, {
         filePath: input.filePath,
-        sourceText: input.sourceText
+        sourceText: input.sourceText,
       })
     : [];
 
   const builtInFindings = builtInRules.flatMap((rule) =>
-    rule.detect(input.filePath, input.sourceText)
+    rule.detect(input.filePath, input.sourceText),
   );
 
   return {
     filePath: input.filePath,
-    findings: [...ruleFindings, ...builtInFindings]
+    findings: sortFindingsByLocation([...ruleFindings, ...builtInFindings]),
   };
 }
