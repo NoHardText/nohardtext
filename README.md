@@ -295,6 +295,6 @@ Paid services and future paid features may include localization audits, NoHardTe
 
 ## License
 
-License is not finalized yet.
+MIT License.
 
-Before broader promotion, choose and publish a real open-source license such as MIT or Apache-2.0.
+Copyright (c) 2026 Reham Mohamed

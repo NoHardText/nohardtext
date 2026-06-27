@@ -34,5 +34,6 @@
   "publishConfig": {
     "access": "public",
     "tag": "latest"
-  }
+  },
+  "license": "MIT"
 }
