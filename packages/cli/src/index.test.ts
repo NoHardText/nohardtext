@@ -82,6 +82,12 @@ describe("@nohardtext/cli", () => {
     const output = runScanJson("../../examples/react-basic/src", process.cwd());
     const parsed = JSON.parse(output);
 
+    expect(parsed.schemaVersion).toBe("1.0");
+    expect(parsed.tool).toEqual({
+      name: "NoHardText",
+      version: "0.0.0",
+    });
+
     expect(parsed.scannedFiles).toBe(1);
     expect(parsed.findings.length).toBeGreaterThan(0);
     expect(parsed.summary.totalFindings).toBe(parsed.findings.length);

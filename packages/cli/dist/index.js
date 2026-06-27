@@ -148,6 +148,11 @@ function createScanOutput(targetPath, cwd = process.cwd(), config = {}) {
     }).findings;
   });
   return {
+    schemaVersion: "1.0",
+    tool: {
+      name: "NoHardText",
+      version: "0.0.0"
+    },
     scannedFiles: files.length,
     findings,
     summary: createReportSummary({ findings })

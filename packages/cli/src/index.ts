@@ -36,6 +36,11 @@ export interface NoHardTextConfig {
 }
 
 export interface ScanOutput {
+  schemaVersion: "1.0";
+  tool: {
+    name: "NoHardText";
+    version: string;
+  };
   scannedFiles: number;
   findings: Finding[];
   summary: ReportSummary;
@@ -229,6 +234,11 @@ export function createScanOutput(
   });
 
   return {
+    schemaVersion: "1.0",
+    tool: {
+      name: "NoHardText",
+      version: "0.0.0",
+    },
     scannedFiles: files.length,
     findings,
     summary: createReportSummary({ findings }),

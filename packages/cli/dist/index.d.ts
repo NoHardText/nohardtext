@@ -8,6 +8,11 @@ interface NoHardTextConfig {
     componentTextProps?: string[];
 }
 interface ScanOutput {
+    schemaVersion: "1.0";
+    tool: {
+        name: "NoHardText";
+        version: string;
+    };
     scannedFiles: number;
     findings: Finding[];
     summary: ReportSummary;
