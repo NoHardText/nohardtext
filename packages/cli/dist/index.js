@@ -238,6 +238,35 @@ function createScanOutput(targetPath, cwd = process.cwd(), config = {}, options 
     }
   };
 }
+function formatFindingCount(count) {
+  return `${count} finding${count === 1 ? "" : "s"}`;
+}
+function formatRuleBreakdownLines(summary, ruleMetadata) {
+  const entries = Object.entries(summary.ruleBreakdown);
+  if (entries.length === 0) {
+    return [];
+  }
+  const lines = ["Rule breakdown:"];
+  for (const [ruleId, breakdown] of entries) {
+    const metadata = ruleMetadata.get(ruleId);
+    const label = metadata ? `${ruleId} - ${metadata.name}` : ruleId;
+    lines.push(`  ${label}: ${formatFindingCount(breakdown.totalFindings)}`);
+  }
+  lines.push("");
+  return lines;
+}
+function formatCategoryBreakdownLines(summary) {
+  const entries = Object.entries(summary.categoryBreakdown);
+  if (entries.length === 0) {
+    return [];
+  }
+  const lines = ["Category breakdown:"];
+  for (const [category, breakdown] of entries) {
+    lines.push(`  ${category}: ${formatFindingCount(breakdown.totalFindings)}`);
+  }
+  lines.push("");
+  return lines;
+}
 function formatScanOutput(output, options = { json: false }) {
   const ruleMetadata = new Map(
     getBuiltInRuleMetadata().map((rule) => [rule.id, rule])
@@ -252,7 +281,9 @@ function formatScanOutput(output, options = { json: false }) {
     `Reason: ${summary.shipReason}`,
     `Localization grade: ${summary.healthScore.grade}`,
     `Localization score: ${summary.healthScore.score} / 100`,
-    ""
+    "",
+    ...formatRuleBreakdownLines(summary, ruleMetadata),
+    ...formatCategoryBreakdownLines(summary)
   ];
   if (output.ci.enabled && output.ci.failOn) {
     lines.push(`Fail on: ${output.ci.failOn}`);

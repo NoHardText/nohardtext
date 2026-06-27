@@ -176,6 +176,15 @@ describe("@nohardtext/cli", () => {
     expect(output).toContain("Can I ship?");
   });
 
+  it("shows rule and category breakdowns in human scan output", () => {
+    const output = runScan("../../examples/react-basic/src", process.cwd());
+
+    expect(output).toContain("Rule breakdown:");
+    expect(output).toContain("NHT1001 - JSX Text:");
+    expect(output).toContain("Category breakdown:");
+    expect(output).toContain("localization:");
+  });
+
   it("returns JSON scan output", () => {
     const output = runScanJson("../../examples/react-basic/src", process.cwd());
     const parsed = JSON.parse(output);

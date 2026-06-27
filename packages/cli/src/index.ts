@@ -353,6 +353,52 @@ export function createScanOutput(
   };
 }
 
+function formatFindingCount(count: number): string {
+  return `${count} finding${count === 1 ? "" : "s"}`;
+}
+
+function formatRuleBreakdownLines(
+  summary: ReportSummary,
+  ruleMetadata: Map<string, ReturnType<typeof getBuiltInRuleMetadata>[number]>,
+): string[] {
+  const entries = Object.entries(summary.ruleBreakdown);
+
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const lines = ["Rule breakdown:"];
+
+  for (const [ruleId, breakdown] of entries) {
+    const metadata = ruleMetadata.get(ruleId);
+    const label = metadata ? `${ruleId} - ${metadata.name}` : ruleId;
+
+    lines.push(`  ${label}: ${formatFindingCount(breakdown.totalFindings)}`);
+  }
+
+  lines.push("");
+
+  return lines;
+}
+
+function formatCategoryBreakdownLines(summary: ReportSummary): string[] {
+  const entries = Object.entries(summary.categoryBreakdown);
+
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const lines = ["Category breakdown:"];
+
+  for (const [category, breakdown] of entries) {
+    lines.push(`  ${category}: ${formatFindingCount(breakdown.totalFindings)}`);
+  }
+
+  lines.push("");
+
+  return lines;
+}
+
 export function formatScanOutput(
   output: ScanOutput,
   options: CliOptions = { json: false },
@@ -373,6 +419,8 @@ export function formatScanOutput(
     `Localization grade: ${summary.healthScore.grade}`,
     `Localization score: ${summary.healthScore.score} / 100`,
     "",
+    ...formatRuleBreakdownLines(summary, ruleMetadata),
+    ...formatCategoryBreakdownLines(summary),
   ];
 
   if (output.ci.enabled && output.ci.failOn) {
