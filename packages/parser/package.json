@@ -1,6 +1,6 @@
 {
   "name": "@nohardcoding/nohardtext-parser",
-  "version": "0.1.0-rc.2",
+  "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,6 +38,6 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "rc"
+    "tag": "latest"
   }
 }

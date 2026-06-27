@@ -9,7 +9,7 @@ import {
   type ReportSummary,
 } from "@nohardcoding/nohardtext-report-engine";
 
-const TOOL_VERSION = "0.1.0-rc.2";
+const TOOL_VERSION = "0.1.0";
 
 const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
 
