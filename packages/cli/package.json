@@ -1,7 +1,6 @@
 {
   "name": "@nohardcoding/nohardtext",
   "version": "0.1.0-rc.2",
-  "private": true,
   "type": "module",
   "bin": {
     "nohardtext": "dist/index.js"
@@ -34,5 +33,9 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "rc"
+  }
 }

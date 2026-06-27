@@ -43,6 +43,7 @@ function validatePackage(packageInfo) {
   console.log("\nChecking " + packageInfo.name);
 
   assert(packageJson.name === packageInfo.name, "Unexpected package name for " + packageInfo.dir + ".");
+  assert(packageJson.private !== true, "Package must not be private before publishing: " + packageInfo.name + ".");
   assert(fs.existsSync(distDir), "Missing dist folder for " + packageInfo.name + ".");
   assert(packageJson.main === "dist/index.js", "Missing or invalid main for " + packageInfo.name + ".");
   assert(packageJson.types === "dist/index.d.ts", "Missing or invalid types for " + packageInfo.name + ".");

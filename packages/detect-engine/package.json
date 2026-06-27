@@ -1,7 +1,6 @@
 {
   "name": "@nohardcoding/nohardtext-detect-engine",
   "version": "0.1.0-rc.2",
-  "private": true,
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -33,5 +32,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "rc"
   }
 }
