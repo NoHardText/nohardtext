@@ -20,5 +20,19 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0"
-  }
+  },
+  "description": "CLI for detecting hardcoded user-facing UI strings.",
+  "keywords": [
+    "localization",
+    "i18n",
+    "cli",
+    "react",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ]
 }

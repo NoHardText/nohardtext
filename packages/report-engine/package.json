@@ -12,5 +12,24 @@
   },
   "dependencies": {
     "@nohardtext/domain": "workspace:*"
+  },
+  "description": "Reporting and summary engine for NoHardText.",
+  "keywords": [
+    "localization",
+    "i18n",
+    "reporting",
+    "ci"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   }
 }

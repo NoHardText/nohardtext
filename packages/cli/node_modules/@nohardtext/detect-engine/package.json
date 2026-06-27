@@ -14,5 +14,24 @@
     "@nohardtext/domain": "workspace:*",
     "@nohardtext/parser": "workspace:*",
     "@nohardtext/rule-engine": "workspace:*"
+  },
+  "description": "Hardcoded UI text detection engine for NoHardText.",
+  "keywords": [
+    "localization",
+    "i18n",
+    "react",
+    "static-analysis"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   }
 }

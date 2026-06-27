@@ -17,5 +17,24 @@
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.28.0"
+  },
+  "description": "Source parser utilities for NoHardText.",
+  "keywords": [
+    "localization",
+    "i18n",
+    "parser",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   }
 }

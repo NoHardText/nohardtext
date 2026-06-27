@@ -13,5 +13,18 @@
     "typescript": "^5.5.4",
     "vitest": "^2.0.5",
     "tsup": "^8.2.4"
+  },
+  "description": "NoHardText monorepo.",
+  "keywords": [
+    "localization",
+    "i18n",
+    "typescript",
+    "react",
+    "cli",
+    "static-analysis"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
   }
 }
