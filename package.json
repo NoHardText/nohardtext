@@ -11,7 +11,8 @@
     "release:check": "node scripts/release-check.cjs",
     "release:pack": "pnpm build && node scripts/package-dry-run.cjs",
     "release:version": "node scripts/version-check.cjs",
-    "release:rc": "node scripts/rc-check.cjs"
+    "release:rc": "node scripts/rc-check.cjs",
+    "release:publish-plan": "node scripts/publish-plan.cjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4",
