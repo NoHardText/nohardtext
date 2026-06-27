@@ -241,6 +241,22 @@ function createScanOutput(targetPath, cwd = process.cwd(), config = {}, options 
 function formatFindingCount(count) {
   return `${count} finding${count === 1 ? "" : "s"}`;
 }
+function formatTopIssueLines(summary, ruleMetadata) {
+  if (summary.topIssues.length === 0) {
+    return [];
+  }
+  const lines = ["Top issues:"];
+  for (const issue of summary.topIssues) {
+    const metadata = ruleMetadata.get(issue.ruleId);
+    const label = metadata ? `${issue.ruleId} - ${metadata.name}` : issue.ruleId;
+    lines.push(
+      `  ${label}: ${formatFindingCount(issue.totalFindings)} (${issue.severity}, ${issue.category})`
+    );
+    lines.push(`    Example: ${issue.exampleMessage}`);
+  }
+  lines.push("");
+  return lines;
+}
 function formatRuleBreakdownLines(summary, ruleMetadata) {
   const entries = Object.entries(summary.ruleBreakdown);
   if (entries.length === 0) {
@@ -282,6 +298,7 @@ function formatScanOutput(output, options = { json: false }) {
     `Localization grade: ${summary.healthScore.grade}`,
     `Localization score: ${summary.healthScore.score} / 100`,
     "",
+    ...formatTopIssueLines(summary, ruleMetadata),
     ...formatRuleBreakdownLines(summary, ruleMetadata),
     ...formatCategoryBreakdownLines(summary)
   ];

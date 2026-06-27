@@ -179,6 +179,9 @@ describe("@nohardtext/cli", () => {
   it("shows rule and category breakdowns in human scan output", () => {
     const output = runScan("../../examples/react-basic/src", process.cwd());
 
+    expect(output).toContain("Top issues:");
+    expect(output).toContain("NHT1001 - JSX Text:");
+    expect(output).toContain("Example:");
     expect(output).toContain("Rule breakdown:");
     expect(output).toContain("NHT1001 - JSX Text:");
     expect(output).toContain("Category breakdown:");

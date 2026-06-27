@@ -357,6 +357,31 @@ function formatFindingCount(count: number): string {
   return `${count} finding${count === 1 ? "" : "s"}`;
 }
 
+function formatTopIssueLines(
+  summary: ReportSummary,
+  ruleMetadata: Map<string, ReturnType<typeof getBuiltInRuleMetadata>[number]>,
+): string[] {
+  if (summary.topIssues.length === 0) {
+    return [];
+  }
+
+  const lines = ["Top issues:"];
+
+  for (const issue of summary.topIssues) {
+    const metadata = ruleMetadata.get(issue.ruleId);
+    const label = metadata ? `${issue.ruleId} - ${metadata.name}` : issue.ruleId;
+
+    lines.push(
+      `  ${label}: ${formatFindingCount(issue.totalFindings)} (${issue.severity}, ${issue.category})`,
+    );
+    lines.push(`    Example: ${issue.exampleMessage}`);
+  }
+
+  lines.push("");
+
+  return lines;
+}
+
 function formatRuleBreakdownLines(
   summary: ReportSummary,
   ruleMetadata: Map<string, ReturnType<typeof getBuiltInRuleMetadata>[number]>,
@@ -419,6 +444,7 @@ export function formatScanOutput(
     `Localization grade: ${summary.healthScore.grade}`,
     `Localization score: ${summary.healthScore.score} / 100`,
     "",
+    ...formatTopIssueLines(summary, ruleMetadata),
     ...formatRuleBreakdownLines(summary, ruleMetadata),
     ...formatCategoryBreakdownLines(summary),
   ];
