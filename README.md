@@ -297,4 +297,4 @@ Paid services and future paid features may include localization audits, NoHardTe
 
 MIT License.
 
-Copyright (c) 2026 Reham Mohamed
+Copyright (c) 2026 NoHardCoding
