@@ -14,6 +14,14 @@ export interface BreakdownSummary {
 export type RuleBreakdown = Record<string, BreakdownSummary>;
 export type CategoryBreakdown = Record<string, BreakdownSummary>;
 
+export interface TopIssueSummary {
+  ruleId: string;
+  category: Finding["category"];
+  severity: Finding["severity"];
+  totalFindings: number;
+  exampleMessage: string;
+}
+
 export interface ReportSummary {
   totalFindings: number;
   critical: number;
@@ -23,6 +31,7 @@ export interface ReportSummary {
   info: number;
   ruleBreakdown: RuleBreakdown;
   categoryBreakdown: CategoryBreakdown;
+  topIssues: TopIssueSummary[];
   healthScore: HealthScore;
   shipDecision: ShipDecision;
   shipReason: string;
@@ -91,6 +100,50 @@ function getCategoryBreakdown(findings: Finding[]): CategoryBreakdown {
   return breakdown;
 }
 
+function getSeverityRank(severity: Finding["severity"]): number {
+  const order: Finding["severity"][] = [
+    "info",
+    "low",
+    "medium",
+    "high",
+    "critical"
+  ];
+
+  return order.indexOf(severity);
+}
+
+function getTopIssues(findings: Finding[], limit = 5): TopIssueSummary[] {
+  const groups = new Map<string, TopIssueSummary>();
+
+  for (const finding of findings) {
+    const key = [finding.ruleId, finding.category, finding.severity].join("|");
+    const current = groups.get(key);
+
+    if (current) {
+      current.totalFindings += 1;
+      continue;
+    }
+
+    groups.set(key, {
+      ruleId: finding.ruleId,
+      category: finding.category,
+      severity: finding.severity,
+      totalFindings: 1,
+      exampleMessage: finding.message
+    });
+  }
+
+  return [...groups.values()]
+    .sort((left, right) => {
+      if (right.totalFindings !== left.totalFindings) {
+        return right.totalFindings - left.totalFindings;
+      }
+
+      return getSeverityRank(right.severity) - getSeverityRank(left.severity);
+    })
+    .slice(0, limit);
+}
+
 function getShipDecision(summary: {
   totalFindings: number;
   critical: number;
@@ -155,6 +208,7 @@ export function createReportSummary(result: ScanResult): ReportSummary {
     info,
     ruleBreakdown: getRuleBreakdown(result.findings),
     categoryBreakdown: getCategoryBreakdown(result.findings),
+    topIssues: getTopIssues(result.findings),
     healthScore: {
       score,
       grade: getGrade(score)

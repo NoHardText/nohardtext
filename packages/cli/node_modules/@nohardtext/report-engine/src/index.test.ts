@@ -107,6 +107,51 @@ describe("@nohardtext/report-engine", () => {
     });
   });
 
+  it("creates top issues", () => {
+    const summary = createReportSummary({
+      findings: [
+        createFinding({
+          id: "finding-1",
+          ruleId: "NHT1001",
+          severity: "high",
+          category: "localization",
+          message: "Hardcoded JSX text found."
+        }),
+        createFinding({
+          id: "finding-2",
+          ruleId: "NHT1001",
+          severity: "high",
+          category: "localization",
+          message: "Hardcoded JSX text found."
+        }),
+        createFinding({
+          id: "finding-3",
+          ruleId: "NHT1005",
+          severity: "critical",
+          category: "accessibility",
+          message: "Missing useful alt text."
+        })
+      ]
+    });
+
+    expect(summary.topIssues).toEqual([
+      {
+        ruleId: "NHT1001",
+        category: "localization",
+        severity: "high",
+        totalFindings: 2,
+        exampleMessage: "Hardcoded JSX text found."
+      },
+      {
+        ruleId: "NHT1005",
+        category: "accessibility",
+        severity: "critical",
+        totalFindings: 1,
+        exampleMessage: "Missing useful alt text."
+      }
+    ]);
+  });
+
   it("returns warning when only medium or low findings exist", () => {
     const summary = createReportSummary({
       findings: [
@@ -135,6 +180,7 @@ describe("@nohardtext/report-engine", () => {
     expect(summary.totalFindings).toBe(0);
     expect(summary.ruleBreakdown).toEqual({});
     expect(summary.categoryBreakdown).toEqual({});
+    expect(summary.topIssues).toEqual([]);
     expect(summary.healthScore.score).toBe(100);
     expect(summary.healthScore.grade).toBe("AAA");
     expect(summary.shipDecision).toBe("yes");

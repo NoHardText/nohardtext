@@ -46,6 +46,40 @@ function getCategoryBreakdown(findings) {
   }
   return breakdown;
 }
+function getSeverityRank(severity) {
+  const order = [
+    "info",
+    "low",
+    "medium",
+    "high",
+    "critical"
+  ];
+  return order.indexOf(severity);
+}
+function getTopIssues(findings, limit = 5) {
+  const groups = /* @__PURE__ */ new Map();
+  for (const finding of findings) {
+    const key = [finding.ruleId, finding.category, finding.severity].join("|");
+    const current = groups.get(key);
+    if (current) {
+      current.totalFindings += 1;
+      continue;
+    }
+    groups.set(key, {
+      ruleId: finding.ruleId,
+      category: finding.category,
+      severity: finding.severity,
+      totalFindings: 1,
+      exampleMessage: finding.message
+    });
+  }
+  return [...groups.values()].sort((left, right) => {
+    if (right.totalFindings !== left.totalFindings) {
+      return right.totalFindings - left.totalFindings;
+    }
+    return getSeverityRank(right.severity) - getSeverityRank(left.severity);
+  }).slice(0, limit);
+}
 function getShipDecision(summary) {
   if (summary.critical > 0) {
     return {
@@ -95,6 +129,7 @@ function createReportSummary(result) {
     info,
     ruleBreakdown: getRuleBreakdown(result.findings),
     categoryBreakdown: getCategoryBreakdown(result.findings),
+    topIssues: getTopIssues(result.findings),
     healthScore: {
       score,
       grade: getGrade(score)
