@@ -14,7 +14,10 @@ declare function detectTitleAttributeText(filePath: string, sourceText: string):
 
 declare function getBuiltInRuleMetadata(): RuleMetadata[];
 
-declare function detectCustomComponentPropText(filePath: string, sourceText: string): Finding[];
+interface ComponentTextPropOptions {
+    propNames?: string[];
+}
+declare function detectCustomComponentPropText(filePath: string, sourceText: string, options?: ComponentTextPropOptions): Finding[];
 
 declare function sortFindingsByLocation(findings: Finding[]): Finding[];
 interface DetectInput {

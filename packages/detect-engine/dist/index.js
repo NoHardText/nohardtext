@@ -158,7 +158,7 @@ function detectTitleAttributeText(filePath, sourceText) {
 }
 
 // src/rules/custom-component-prop.ts
-var COMPONENT_TEXT_PROPS = [
+var DEFAULT_COMPONENT_TEXT_PROPS = [
   "label",
   "description",
   "helperText",
@@ -170,8 +170,11 @@ var COMPONENT_TEXT_PROPS = [
   "primaryText",
   "secondaryText"
 ];
-function detectCustomComponentPropText(filePath, sourceText) {
-  return COMPONENT_TEXT_PROPS.flatMap(
+function getComponentTextProps(options = {}) {
+  return [.../* @__PURE__ */ new Set([...DEFAULT_COMPONENT_TEXT_PROPS, ...options.propNames ?? []])];
+}
+function detectCustomComponentPropText(filePath, sourceText, options = {}) {
+  return getComponentTextProps(options).flatMap(
     (attributeName) => detectStringAttribute(filePath, sourceText, {
       attributeName,
       ruleId: "NHT1006",

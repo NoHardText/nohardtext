@@ -1,7 +1,7 @@
 import type { Finding } from "@nohardtext/domain";
 import { detectStringAttribute } from "./string-attribute";
 
-const COMPONENT_TEXT_PROPS = [
+const DEFAULT_COMPONENT_TEXT_PROPS = [
   "label",
   "description",
   "helperText",
@@ -14,11 +14,20 @@ const COMPONENT_TEXT_PROPS = [
   "secondaryText"
 ];
 
+export interface ComponentTextPropOptions {
+  propNames?: string[];
+}
+
+function getComponentTextProps(options: ComponentTextPropOptions = {}): string[] {
+  return [...new Set([...DEFAULT_COMPONENT_TEXT_PROPS, ...(options.propNames ?? [])])];
+}
+
 export function detectCustomComponentPropText(
   filePath: string,
-  sourceText: string
+  sourceText: string,
+  options: ComponentTextPropOptions = {}
 ): Finding[] {
-  return COMPONENT_TEXT_PROPS.flatMap((attributeName) =>
+  return getComponentTextProps(options).flatMap((attributeName) =>
     detectStringAttribute(filePath, sourceText, {
       attributeName,
       ruleId: "NHT1006",
