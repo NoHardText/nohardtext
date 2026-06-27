@@ -6,9 +6,14 @@ import { detectPlaceholderText } from "./placeholder";
 import { detectTitleAttributeText } from "./title";
 import { detectCustomComponentPropText } from "./custom-component-prop";
 
+export interface BuiltInRuleOptions {
+  componentTextProps?: string[];
+} 
+
 export type BuiltInRuleDetector = (
   filePath: string,
-  sourceText: string
+  sourceText: string,
+  options?: BuiltInRuleOptions
 ) => Finding[];
 
 export interface BuiltInRuleDefinition {
@@ -82,7 +87,10 @@ export const builtInRules: BuiltInRuleDefinition[] = [
     description: "Detects hardcoded user-facing text passed through common component props.",
     fixable: true
   },
-  detect: detectCustomComponentPropText
+  detect: (filePath, sourceText, options) =>
+  detectCustomComponentPropText(filePath, sourceText, {
+    propNames: options?.componentTextProps
+  })
 }
 ];
 

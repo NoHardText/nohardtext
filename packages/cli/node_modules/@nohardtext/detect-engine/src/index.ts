@@ -1,14 +1,19 @@
 import type { Finding } from "@nohardtext/domain";
 import { runRules, type Rule } from "@nohardtext/rule-engine";
-import { builtInRules, getBuiltInRuleMetadata } from "./rules/registry";
+
+import {
+  builtInRules,
+  getBuiltInRuleMetadata,
+  type BuiltInRuleOptions
+} from "./rules/registry";
 
 export { detectAltAttributeText } from "./rules/alt";
 export { detectAriaLabelText } from "./rules/aria-label";
 export { detectJsxText } from "./rules/jsx-text";
 export { detectPlaceholderText } from "./rules/placeholder";
 export { detectTitleAttributeText } from "./rules/title";
-export { getBuiltInRuleMetadata } from "./rules/registry";
 export { detectCustomComponentPropText } from "./rules/custom-component-prop";
+export { getBuiltInRuleMetadata } from "./rules/registry";
 
 export function sortFindingsByLocation(findings: Finding[]): Finding[] {
   return [...findings].sort((left, right) => {
@@ -36,6 +41,7 @@ export interface DetectInput {
   filePath: string;
   sourceText: string;
   rules?: Rule[];
+  options?: BuiltInRuleOptions;
 }
 
 export interface DetectResult {
@@ -51,9 +57,9 @@ export function detect(input: DetectInput): DetectResult {
       })
     : [];
 
-  const builtInFindings = builtInRules.flatMap((rule) =>
-    rule.detect(input.filePath, input.sourceText),
-  );
+const builtInFindings = builtInRules.flatMap((rule) =>
+  rule.detect(input.filePath, input.sourceText, input.options)
+);
 
   return {
     filePath: input.filePath,

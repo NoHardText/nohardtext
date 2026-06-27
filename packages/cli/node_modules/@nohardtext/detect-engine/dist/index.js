@@ -254,7 +254,9 @@ var builtInRules = [
       description: "Detects hardcoded user-facing text passed through common component props.",
       fixable: true
     },
-    detect: detectCustomComponentPropText
+    detect: (filePath, sourceText, options) => detectCustomComponentPropText(filePath, sourceText, {
+      propNames: options?.componentTextProps
+    })
   }
 ];
 var builtInRuleDetectors = builtInRules.map((rule) => rule.detect);
@@ -286,7 +288,7 @@ function detect(input) {
     sourceText: input.sourceText
   }) : [];
   const builtInFindings = builtInRules.flatMap(
-    (rule) => rule.detect(input.filePath, input.sourceText)
+    (rule) => rule.detect(input.filePath, input.sourceText, input.options)
   );
   return {
     filePath: input.filePath,

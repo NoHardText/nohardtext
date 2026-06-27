@@ -1,6 +1,11 @@
 import * as _nohardtext_domain from '@nohardtext/domain';
-import { Finding, RuleMetadata } from '@nohardtext/domain';
+import { RuleMetadata, Finding } from '@nohardtext/domain';
 import { Rule } from '@nohardtext/rule-engine';
+
+interface BuiltInRuleOptions {
+    componentTextProps?: string[];
+}
+declare function getBuiltInRuleMetadata(): RuleMetadata[];
 
 declare function detectAltAttributeText(filePath: string, sourceText: string): _nohardtext_domain.Finding[];
 
@@ -12,8 +17,6 @@ declare function detectPlaceholderText(filePath: string, sourceText: string): _n
 
 declare function detectTitleAttributeText(filePath: string, sourceText: string): _nohardtext_domain.Finding[];
 
-declare function getBuiltInRuleMetadata(): RuleMetadata[];
-
 interface ComponentTextPropOptions {
     propNames?: string[];
 }
@@ -24,6 +27,7 @@ interface DetectInput {
     filePath: string;
     sourceText: string;
     rules?: Rule[];
+    options?: BuiltInRuleOptions;
 }
 interface DetectResult {
     filePath: string;
