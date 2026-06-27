@@ -1,8 +1,28 @@
+# dependencies
 node_modules/
 .pnpm-store/
+
+# build output
 dist/
+build/
+out/
+.next/
+
+# test output
 coverage/
+
+# environment
 .env
 .env.*
+
+# logs
 *.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# OS/editor
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/

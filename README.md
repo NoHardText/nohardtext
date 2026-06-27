@@ -2,242 +2,210 @@
 
 **Never ship hardcoded UI strings again.**
 
-NoHardText is a localization quality tool for modern frontend projects.
+NoHardText is a focused CLI that detects hardcoded user-facing text in React/TSX projects before it reaches production.
 
-It detects hardcoded user-facing text in React/TSX code and reports localization issues before they reach production.
+It helps frontend teams answer one release-critical question:
 
----
+> Can I ship this UI without hardcoded localization text?
 
 ## Status
 
-Release candidate preparation.
+Stable `0.1.0`.
+
+The core scan is intended to stay free so developers and teams can adopt it easily in local development and CI.
+
+## Install
+
+```bash
+npm install -D @nohardcoding/nohardtext
+```
+
+Run a scan:
+
+```bash
+npx nohardtext scan src
+```
+
+Check the installed version:
+
+```bash
+npx nohardtext --version
+```
+
+Use it without adding it to a project:
+
+```bash
+npx --package @nohardcoding/nohardtext nohardtext scan src
+```
+
+## What it detects
+
+```tsx
+// ❌ Hardcoded UI text
+export default function App() {
+  return <button>Save</button>;
+}
+```
+
+```txt
+NHT1001 - JSX Text
+Hardcoded JSX text found: "Save"
+Can I ship? No
+```
+
+Localized code is allowed:
+
+```tsx
+// ✅ Localized UI text
+export default function App() {
+  return <button>{t("actions.save")}</button>;
+}
+```
+
+```txt
+Findings: 0
+Can I ship? Yes
+```
+
+## Current rules
+
+| Rule ID | Rule | Category | Default severity | Description |
+|---|---|---|---|---|
+| `NHT1001` | JSX Text | localization | high | Detects hardcoded user-facing text inside JSX nodes |
+| `NHT1002` | Placeholder Attribute | localization | high | Detects hardcoded placeholder attribute values |
+| `NHT1003` | Title Attribute | localization | high | Detects hardcoded title attribute values |
+| `NHT1004` | ARIA Label | accessibility | high | Detects hardcoded `aria-label` attribute values |
+| `NHT1005` | Alt Attribute | accessibility | high | Detects hardcoded image `alt` text |
+| `NHT1006` | Component Text Prop | localization | high | Detects hardcoded text passed through common custom component props |
+
+## Supported patterns
 
 NoHardText currently supports:
 
 - React / TSX scanning
-- CLI usage
+- JSX text detection
+- static JSX attribute detection
+- static JSX expression strings
+- conditional and logical expression strings
+- common localization call ignores
+- React Intl patterns
+- React i18next `<Trans />` patterns
+- custom component text prop detection
 - JSON reports
 - GitHub Actions annotation output
 - CI failure thresholds
-- Config validation
-- Rule enable/disable config
-- Rule severity overrides
-- Custom component text prop detection
-- Localization health score
-- Release safety checks
-- Package pack checks
+- rule configuration
+- localization health score
+- release safety checks
+- scan quality regression tests
 
----
+## CLI usage
 
-## Why NoHardText?
-
-Babel can parse code.
-
-NoHardText understands localization quality.
-
-It helps answer:
-
-> Can I ship this release without hardcoded user-facing text?
-
----
-
-## Current Rules
-
-| Rule ID | Rule | Category | Default Severity | Description |
-|---|---|---|---|---|
-| NHT1001 | JSX Text | localization | high | Detects hardcoded user-facing text inside JSX nodes |
-| NHT1002 | Placeholder Attribute | localization | high | Detects hardcoded placeholder attribute values |
-| NHT1003 | Title Attribute | localization | high | Detects hardcoded title attribute values |
-| NHT1004 | ARIA Label | accessibility | high | Detects hardcoded aria-label attribute values |
-| NHT1005 | Alt Attribute | accessibility | high | Detects hardcoded image alt text |
-| NHT1006 | Component Text Prop | localization | high | Detects hardcoded text passed through common custom component props |
-
----
-
-## Quick Start
-
-Install dependencies:
+Scan a path:
 
 ```bash
-pnpm install
+npx nohardtext scan src
 ```
 
-Build all packages:
+Print JSON output:
 
 ```bash
-pnpm build
+npx nohardtext scan src --json
 ```
 
-Run tests:
+Write JSON output to a file:
 
 ```bash
-pnpm test
+npx nohardtext scan src --json --output nohardtext-report.json
 ```
 
-Run the CLI demo:
+Print GitHub Actions annotations:
 
 ```bash
-node packages/cli/dist/index.js scan examples/react-basic/src
+npx nohardtext scan src --github-annotations --fail-on high
 ```
 
----
-
-## CLI Usage
-
-### Scan a path
+Fail CI on a severity threshold:
 
 ```bash
-node packages/cli/dist/index.js scan src
+npx nohardtext scan src --fail-on high
 ```
 
-### Scan the example project
+Allowed severities: `info`, `low`, `medium`, `high`, `critical`.
+
+List supported rules:
 
 ```bash
-node packages/cli/dist/index.js scan examples/react-basic/src
+npx nohardtext rules
 ```
 
-### Print JSON output
+Show help:
 
 ```bash
-node packages/cli/dist/index.js scan examples/react-basic/src --json
+npx nohardtext --help
 ```
 
-### Write JSON output to a file
-
-```bash
-node packages/cli/dist/index.js scan examples/react-basic/src --json --output nohardtext-report.json
-```
-
-### Print GitHub Actions annotations
-
-```bash
-node packages/cli/dist/index.js scan src --github-annotations --fail-on high
-```
-
-### Write GitHub Actions annotations to a file
-
-```bash
-node packages/cli/dist/index.js scan src --github-annotations --output github-annotations.txt
-```
-
-### Fail CI on a severity threshold
-
-```bash
-node packages/cli/dist/index.js scan src --fail-on high
-```
-
-Allowed severities:
-
-- info
-- low
-- medium
-- high
-- critical
-
-CLI flags take priority over config.
-
-### List supported rules
-
-```bash
-node packages/cli/dist/index.js rules
-```
-
-### Show help
-
-```bash
-node packages/cli/dist/index.js --help
-```
-
-### Show version
-
-```bash
-node packages/cli/dist/index.js --version
-```
-
----
-
-## Example Human Output
+## Example output
 
 ```txt
 NoHardText CLI
 
 Scanned files: 1
-Findings: 6
+Findings: 1
 Can I ship? No
-Reason: 6 high-severity localization findings found.
-Localization grade: F
-Localization score: 28 / 100
+Reason: 1 high-severity localization findings found.
+Localization grade: A
+Localization score: 88 / 100
 
 Top issues:
-  NHT1001 - JSX Text: 2 findings (high, localization)
-    Example: Hardcoded JSX text found: "Welcome"
-
-Rule breakdown:
-  NHT1001 - JSX Text: 2 findings
-  NHT1002 - Placeholder Attribute: 1 finding
-  NHT1003 - Title Attribute: 1 finding
-  NHT1004 - ARIA Label: 1 finding
-  NHT1005 - Alt Attribute: 1 finding
-
-Category breakdown:
-  localization: 4 findings
-  accessibility: 2 findings
+  NHT1001 - JSX Text: 1 finding (high, localization)
+    Example: Hardcoded JSX text found: "Save"
 ```
 
----
-
-## JSON Report
+## JSON report
 
 ```bash
-node packages/cli/dist/index.js scan src --json --output nohardtext-report.json
+npx nohardtext scan src --json --output nohardtext-report.json
 ```
 
-The JSON report includes:
-
-- schema version
-- generation time
-- tool metadata
-- scanned file count
-- scanned files
-- findings
-- severity summary
-- rule breakdown
-- category breakdown
-- top issues
-- localization health score
-- ship decision
-- CI metadata
-
-See:
-
-```txt
-docs/engineering/JSON_REPORT_SPEC.md
-docs/engineering/REPORTING_ENGINE_SPEC.md
-```
-
----
+The JSON report includes schema version, generation time, scanned files, findings, severity summary, rule breakdown, category breakdown, top issues, localization health score, ship decision, and CI metadata.
 
 ## GitHub Actions
 
 NoHardText can emit GitHub Actions annotation syntax:
 
 ```bash
-node packages/cli/dist/index.js scan src --github-annotations --fail-on high
+npx nohardtext scan src --github-annotations --fail-on high
 ```
 
-Example annotation:
+Basic workflow example:
 
-```txt
-::error file=src/App.tsx,line=4,col=11,title=NHT1001 - JSX Text::[high][localization] Hardcoded JSX text found: "Welcome"
+```yaml
+name: NoHardText
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  nohardtext:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install -D @nohardcoding/nohardtext
+
+      - run: npx nohardtext scan src --github-annotations --fail-on high
 ```
 
-See:
-
-```txt
-docs/engineering/GITHUB_ACTIONS_SPEC.md
-```
-
----
+A dedicated GitHub Action package is planned.
 
 ## Configuration
 
@@ -251,14 +219,9 @@ Example:
 
 ```json
 {
-  "ignore": [
-    "storybook-static"
-  ],
+  "ignore": ["storybook-static"],
   "failOn": "high",
-  "componentTextProps": [
-    "message",
-    "text"
-  ],
+  "componentTextProps": ["message", "text"],
   "rules": {
     "NHT1001": "high",
     "NHT1002": "medium",
@@ -267,255 +230,71 @@ Example:
 }
 ```
 
-### ignore
+## Examples
 
-Additional directories to skip during scan.
-
-Built-in ignored directories include:
-
-- node_modules
-- dist
-- coverage
-- .git
-- .next
-- build
-- out
-
-### failOn
-
-Default CI failure threshold.
-
-Example:
-
-```json
-{
-  "failOn": "high"
-}
-```
-
-### componentTextProps
-
-Additional custom component prop names that should be checked for hardcoded user-facing text.
-
-Example:
-
-```json
-{
-  "componentTextProps": [
-    "message",
-    "text"
-  ]
-}
-```
-
-This detects:
-
-```tsx
-<Toast message="Saved successfully" />
-<Badge text="New" />
-```
-
-These props are checked only on custom components, not native HTML elements.
-
-### rules
-
-Rules can be disabled or have their severity overridden.
-
-```json
-{
-  "rules": {
-    "NHT1001": "off",
-    "NHT1002": "medium"
-  }
-}
-```
-
-Supported values:
-
-- off
-- info
-- low
-- medium
-- high
-- critical
-
-See:
-
-```txt
-docs/engineering/CONFIG_SPEC.md
-docs/engineering/RULE_CONFIG_SPEC.md
-```
-
----
-
-## Example Project
-
-The example project intentionally contains hardcoded text so the CLI has something to detect.
+Scan the intentionally dirty React example:
 
 ```bash
-node packages/cli/dist/index.js scan examples/react-basic/src
+npx nohardtext scan examples/react-basic/src
 ```
 
-Current example patterns include:
+Scan the clean localized example:
 
-```tsx
-<h1>Welcome</h1>
-<button title="Start the game" aria-label="Start button">
-  Start Game
-</button>
-<input placeholder="Search..." />
-<img src="/logo.png" alt="Game logo" />
+```bash
+npx nohardtext scan examples/react-clean/src
 ```
-
----
 
 ## Development
 
-Install dependencies:
-
 ```bash
 pnpm install
-```
-
-Build all packages:
-
-```bash
 pnpm build
-```
-
-Run type checks:
-
-```bash
 pnpm typecheck
-```
-
-Run tests:
-
-```bash
 pnpm test
 ```
 
 Run release safety checks:
 
 ```bash
+pnpm release:version
 pnpm release:check
 pnpm release:pack
+pnpm release:rc
+pnpm release:publish-plan
 ```
-
----
-
-## Release Checks
-
-### release:check
-
-```bash
-pnpm release:check
-```
-
-Validates:
-
-- build
-- tests
-- CLI help
-- CLI version
-- JSON output
-- GitHub annotation output
-- dirty fixture detection
-- clean fixture with localization call
-
-### release:pack
-
-```bash
-pnpm release:pack
-```
-
-Validates:
-
-- package metadata
-- dist output
-- types output
-- files allowlist
-- CLI bin metadata
-- package packing
-
-See:
-
-```txt
-docs/engineering/RELEASE_CHECKS_SPEC.md
-docs/engineering/FIRST_RELEASE_CANDIDATE_CHECKLIST.md
-```
-
----
 
 ## Packages
 
-```txt
-packages/
-  cli/
-  detect-engine/
-  domain/
-  parser/
-  report-engine/
-  rule-engine/
-```
+- `@nohardcoding/nohardtext`
+- `@nohardcoding/nohardtext-detect-engine`
+- `@nohardcoding/nohardtext-parser`
+- `@nohardcoding/nohardtext-report-engine`
+- `@nohardcoding/nohardtext-rule-engine`
+- `@nohardcoding/nohardtext-domain`
 
-### @nohardcoding/nohardtext-domain
+## Product direction
 
-Shared domain types.
+NoHardText is designed to become the quality gate for localization in frontend projects.
 
-### @nohardcoding/nohardtext-parser
+Planned work:
 
-Parser utilities for JSX and TypeScript source.
-
-### @nohardcoding/nohardtext-rule-engine
-
-Rule execution helpers.
-
-### @nohardcoding/nohardtext-detect-engine
-
-Built-in detection rules.
-
-### @nohardcoding/nohardtext-report-engine
-
-Summary, health score, ship decision, breakdowns, and top issues.
-
-### @nohardcoding/nohardtext
-
-Command-line interface.
-
----
-
-## Sprint Status
-
-Sprint 0 — Foundation: Done  
-Sprint 1 — Hello World Scan: Done  
-Sprint 2 — Rule System Cleanup: Done  
-Sprint 3 — Real-world Detection: Done  
-Sprint 4 — Config System: Done  
-Sprint 5 — CLI & CI Polish: Done  
-Sprint 6 — Reporting Engine Polish: Done  
-Sprint 7 — Developer Experience & Package Polish: Done  
-Sprint 8 — README, Examples & First Release Candidate: In progress
-
----
-
-## Product Direction
-
-NoHardText is designed to become the ESLint of localization quality.
-
-Planned future work:
-
-- stronger real-world detection
-- broader framework support
-- auto-fix
+- official GitHub Action
+- stronger real-world scan coverage
+- auto-fix suggestions
 - VS Code extension
-- MCP server
 - hosted reporting
 - team dashboards
+- PR comments
 - release trend reports
 
----
+## Paid support
+
+The core CLI scan is free.
+
+Paid services and future paid features may include localization audits, NoHardText setup help, CI integration, team reporting, managed dashboards, PR comments, and scan history.
 
 ## License
 
-TBD
+License is not finalized yet.
+
+Before broader promotion, choose and publish a real open-source license such as MIT or Apache-2.0.
