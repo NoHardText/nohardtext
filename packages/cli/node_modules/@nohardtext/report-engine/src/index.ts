@@ -2,6 +2,18 @@ import type { Finding, HealthScore, ScanResult } from "@nohardtext/domain";
 
 export type ShipDecision = "yes" | "warning" | "no";
 
+export interface BreakdownSummary {
+  totalFindings: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  info: number;
+}
+
+export type RuleBreakdown = Record<string, BreakdownSummary>;
+export type CategoryBreakdown = Record<string, BreakdownSummary>;
+
 export interface ReportSummary {
   totalFindings: number;
   critical: number;
@@ -9,6 +21,8 @@ export interface ReportSummary {
   medium: number;
   low: number;
   info: number;
+  ruleBreakdown: RuleBreakdown;
+  categoryBreakdown: CategoryBreakdown;
   healthScore: HealthScore;
   shipDecision: ShipDecision;
   shipReason: string;
@@ -22,6 +36,59 @@ function getGrade(score: number): HealthScore["grade"] {
   if (score >= 60) return "C";
   if (score >= 50) return "D";
   return "F";
+}
+
+function createEmptyBreakdown(): BreakdownSummary {
+  return {
+    totalFindings: 0,
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    info: 0
+  };
+}
+
+function incrementBreakdown(
+  breakdown: BreakdownSummary,
+  severity: Finding["severity"]
+): void {
+  breakdown.totalFindings += 1;
+  breakdown[severity] += 1;
+}
+
+function getRuleBreakdown(findings: Finding[]): RuleBreakdown {
+  const breakdown: RuleBreakdown = {};
+
+  for (const finding of findings) {
+    let ruleSummary = breakdown[finding.ruleId];
+
+    if (!ruleSummary) {
+      ruleSummary = createEmptyBreakdown();
+      breakdown[finding.ruleId] = ruleSummary;
+    }
+
+    incrementBreakdown(ruleSummary, finding.severity);
+  }
+
+  return breakdown;
+}
+
+function getCategoryBreakdown(findings: Finding[]): CategoryBreakdown {
+  const breakdown: CategoryBreakdown = {};
+
+  for (const finding of findings) {
+    let categorySummary = breakdown[finding.category];
+
+    if (!categorySummary) {
+      categorySummary = createEmptyBreakdown();
+      breakdown[finding.category] = categorySummary;
+    }
+
+    incrementBreakdown(categorySummary, finding.severity);
+  }
+
+  return breakdown;
 }
 
 function getShipDecision(summary: {
@@ -86,6 +153,8 @@ export function createReportSummary(result: ScanResult): ReportSummary {
     medium,
     low,
     info,
+    ruleBreakdown: getRuleBreakdown(result.findings),
+    categoryBreakdown: getCategoryBreakdown(result.findings),
     healthScore: {
       score,
       grade: getGrade(score)

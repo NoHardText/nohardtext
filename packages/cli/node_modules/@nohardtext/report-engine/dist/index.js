@@ -8,6 +8,44 @@ function getGrade(score) {
   if (score >= 50) return "D";
   return "F";
 }
+function createEmptyBreakdown() {
+  return {
+    totalFindings: 0,
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    info: 0
+  };
+}
+function incrementBreakdown(breakdown, severity) {
+  breakdown.totalFindings += 1;
+  breakdown[severity] += 1;
+}
+function getRuleBreakdown(findings) {
+  const breakdown = {};
+  for (const finding of findings) {
+    let ruleSummary = breakdown[finding.ruleId];
+    if (!ruleSummary) {
+      ruleSummary = createEmptyBreakdown();
+      breakdown[finding.ruleId] = ruleSummary;
+    }
+    incrementBreakdown(ruleSummary, finding.severity);
+  }
+  return breakdown;
+}
+function getCategoryBreakdown(findings) {
+  const breakdown = {};
+  for (const finding of findings) {
+    let categorySummary = breakdown[finding.category];
+    if (!categorySummary) {
+      categorySummary = createEmptyBreakdown();
+      breakdown[finding.category] = categorySummary;
+    }
+    incrementBreakdown(categorySummary, finding.severity);
+  }
+  return breakdown;
+}
 function getShipDecision(summary) {
   if (summary.critical > 0) {
     return {
@@ -55,6 +93,8 @@ function createReportSummary(result) {
     medium,
     low,
     info,
+    ruleBreakdown: getRuleBreakdown(result.findings),
+    categoryBreakdown: getCategoryBreakdown(result.findings),
     healthScore: {
       score,
       grade: getGrade(score)
