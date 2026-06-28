@@ -16,7 +16,19 @@ var DEFAULT_IGNORED_DIRECTORIES = [
   ".git",
   ".next",
   "build",
-  "out"
+  "out",
+  ".storybook",
+  "__tests__",
+  "__mocks__",
+  "__fixtures__",
+  "tests",
+  "test",
+  "mocks",
+  "fixtures",
+  "stories",
+  "demo",
+  "demos",
+  "examples"
 ];
 var DEFAULT_IGNORED_FILE_PATTERNS = [
   ".stories.ts",

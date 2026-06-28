@@ -21,6 +21,18 @@ const DEFAULT_IGNORED_DIRECTORIES = [
   ".next",
   "build",
   "out",
+  ".storybook",
+  "__tests__",
+  "__mocks__",
+  "__fixtures__",
+  "tests",
+  "test",
+  "mocks",
+  "fixtures",
+  "stories",
+  "demo",
+  "demos",
+  "examples"
 ];
 
 const DEFAULT_IGNORED_FILE_PATTERNS = [

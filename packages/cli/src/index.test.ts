@@ -456,4 +456,22 @@ describe("@nohardcoding/nohardtext", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("skips common non-production directories by default", () => {
+    expect(shouldSkipDirectory(".storybook")).toBe(true);
+    expect(shouldSkipDirectory("__tests__")).toBe(true);
+    expect(shouldSkipDirectory("__mocks__")).toBe(true);
+    expect(shouldSkipDirectory("__fixtures__")).toBe(true);
+    expect(shouldSkipDirectory("tests")).toBe(true);
+    expect(shouldSkipDirectory("test")).toBe(true);
+    expect(shouldSkipDirectory("mocks")).toBe(true);
+    expect(shouldSkipDirectory("fixtures")).toBe(true);
+    expect(shouldSkipDirectory("stories")).toBe(true);
+    expect(shouldSkipDirectory("demo")).toBe(true);
+    expect(shouldSkipDirectory("demos")).toBe(true);
+    expect(shouldSkipDirectory("examples")).toBe(true);
+    expect(shouldSkipDirectory("src")).toBe(false);
+    expect(shouldSkipDirectory("components")).toBe(false);
+  });
+
 });
