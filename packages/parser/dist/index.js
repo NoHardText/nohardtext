@@ -54,6 +54,13 @@ function collectJsxTextNodes(source) {
   });
   return results;
 }
+function getTemplateLiteralDisplayValue(expression) {
+  const quasis = expression.quasis ?? [];
+  const parts = quasis.map((quasi) => {
+    return quasi?.value?.cooked ?? quasi?.value?.raw ?? "";
+  });
+  return parts.join("${...}").trim();
+}
 function getStaticStringFromAttributeValue(valueNode) {
   if (!valueNode) {
     return void 0;
@@ -154,13 +161,9 @@ function collectExpressionStrings(expression, nodes) {
     return;
   }
   if (expression.type === "TemplateLiteral") {
-    const quasis = expression.quasis ?? [];
-    const expressions = expression.expressions ?? [];
-    if (expressions.length === 0 && quasis.length === 1) {
-      const value = quasis[0]?.value?.cooked ?? quasis[0]?.value?.raw;
-      if (typeof value === "string") {
-        pushJsxExpressionString(nodes, expression, value);
-      }
+    const value = getTemplateLiteralDisplayValue(expression);
+    if (value) {
+      pushJsxExpressionString(nodes, expression, value);
     }
     return;
   }

@@ -97,6 +97,15 @@ export function collectJsxTextNodes(source: string): JsxTextNode[] {
   return results;
 }
 
+function getTemplateLiteralDisplayValue(expression: any): string {
+  const quasis = expression.quasis ?? [];
+  const parts = quasis.map((quasi: any) => {
+    return quasi?.value?.cooked ?? quasi?.value?.raw ?? "";
+  });
+
+  return parts.join("${...}").trim();
+}
+
 function getStaticStringFromAttributeValue(valueNode: JSXAttribute["value"]):
   | {
       value: string;
@@ -256,15 +265,10 @@ function collectExpressionStrings(
   }
 
   if (expression.type === "TemplateLiteral") {
-    const quasis = expression.quasis ?? [];
-    const expressions = expression.expressions ?? [];
+    const value = getTemplateLiteralDisplayValue(expression);
 
-    if (expressions.length === 0 && quasis.length === 1) {
-      const value = quasis[0]?.value?.cooked ?? quasis[0]?.value?.raw;
-
-      if (typeof value === "string") {
-        pushJsxExpressionString(nodes, expression, value);
-      }
+    if (value) {
+      pushJsxExpressionString(nodes, expression, value);
     }
 
     return;

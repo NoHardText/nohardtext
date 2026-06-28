@@ -255,4 +255,39 @@ describe("@nohardtext/detect-engine scan quality", () => {
     expect(findings).toEqual([]);
   });
 
+
+  it("detects dynamic template literal UI strings", () => {
+    const findings = scan(`
+      export default function App({
+        userName,
+        entityName,
+        resourceName,
+      }: {
+        userName: string;
+        entityName: string;
+        resourceName: string;
+      }) {
+        return (
+          <>
+            <h1>{`Welcome ${userName}`}</h1>
+            <input placeholder={`Search ${entityName}`} />
+            <Button label={`Create ${resourceName}`} />
+          </>
+        );
+      }
+    `);
+
+    expect(findings.map((finding) => finding.ruleId)).toEqual([
+      "NHT1001",
+      "NHT1002",
+      "NHT1006",
+    ]);
+
+    expect(findings.map((finding) => finding.message)).toEqual([
+      'Hardcoded JSX text found: "Welcome ${...}"',
+      'Hardcoded placeholder found: "Search ${...}"',
+      'Hardcoded component prop "label" found: "Create ${...}"',
+    ]);
+  });
+
 });
