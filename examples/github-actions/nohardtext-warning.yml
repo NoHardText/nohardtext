@@ -1,0 +1,23 @@
+name: NoHardText Warning
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  nohardtext:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install -D @nohardcoding/nohardtext
+
+      - name: Run NoHardText warning annotations
+        run: npx nohardtext scan src --github-annotations || true
