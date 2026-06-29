@@ -1,0 +1,52 @@
+{
+  "name": "@nohardcoding/nohardtext-vscode",
+  "displayName": "NoHardText",
+  "description": "Detect hardcoded UI strings in React/TSX projects from VS Code.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "nohardcoding",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0",
+    "node": ">=20.0.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:nohardtext.scanWorkspace"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nohardtext.scanWorkspace",
+        "title": "NoHardText: Scan Workspace"
+      }
+    ],
+    "configuration": {
+      "title": "NoHardText",
+      "properties": {
+        "nohardtext.scanPath": {
+          "type": "string",
+          "default": "src",
+          "description": "Workspace-relative file or directory path to scan."
+        },
+        "nohardtext.packageVersion": {
+          "type": "string",
+          "default": "latest",
+          "description": "NoHardText npm package version used by the extension command."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup src/extension.ts --format cjs --external vscode --clean",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.90.0"
+  }
+}

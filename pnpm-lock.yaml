@@ -85,6 +85,15 @@ importers:
         specifier: workspace:*
         version: link:../domain
 
+  packages/vscode-extension:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.0
+      '@types/vscode':
+        specifier: ^1.90.0
+        version: 1.125.0
+
 packages:
 
   '@babel/code-frame@7.29.7':
@@ -620,6 +629,9 @@ packages:
 
   '@types/node@22.20.0':
     resolution: {integrity: sha512-QWlFW2wf3nTjC13/DqRnBpR4ZO36VJH/JVBkA/vcnmbTBNQIlnObqyqZE1tUR7+Ni23Lda8R1BxMfbXRpCUx5g==}
+
+  '@types/vscode@1.125.0':
+    resolution: {integrity: sha512-0icm/ZQAaism87P0ekHqi4/Ju9du+Tm0RUW+y7vqRsxY2cY0FNRX1nAnaW7nT6npPt2tfHiheZ55Zm9UhqonFA==}
 
   '@vitest/expect@2.1.9':
     resolution: {integrity: sha512-UJCIkTBenHeKT1TTlKMJWy1laZewsRIzYighyYiJKZreqtdxSos/S1t+ktRMQWu2CKqaarrkeszJx1cgC5tGZw==}
@@ -1548,6 +1560,8 @@ snapshots:
   '@types/node@22.20.0':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/vscode@1.125.0': {}
 
   '@vitest/expect@2.1.9':
     dependencies:
