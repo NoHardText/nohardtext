@@ -86,18 +86,24 @@ NoHardText currently supports:
 - JSX text detection
 - static JSX attribute detection
 - static JSX expression strings
+- dynamic template literal UI strings
 - conditional and logical expression strings
 - common localization call ignores
 - React Intl patterns
 - React i18next `<Trans />` patterns
 - custom component text prop detection
+- common real-world component text props
+- low-noise handling for common technical props
+- skip defaults for common non-production files and folders
 - JSON reports
 - GitHub Actions annotation output
+- official reusable GitHub Action
 - CI failure thresholds
 - rule configuration
 - localization health score
 - release safety checks
 - scan quality regression tests
+- real-world scan quality fixtures
 
 ## CLI usage
 
@@ -131,7 +137,15 @@ Fail CI on a severity threshold:
 npx nohardtext scan src --fail-on high
 ```
 
-Allowed severities: `info`, `low`, `medium`, `high`, `critical`.
+Allowed severities:
+
+```txt
+info
+low
+medium
+high
+critical
+```
 
 List supported rules:
 
@@ -152,14 +166,18 @@ NoHardText CLI
 
 Scanned files: 1
 Findings: 1
+
 Can I ship? No
 Reason: 1 high-severity localization findings found.
+
 Localization grade: A
 Localization score: 88 / 100
 
 Top issues:
-  NHT1001 - JSX Text: 1 finding (high, localization)
-    Example: Hardcoded JSX text found: "Save"
+NHT1001 - JSX Text: 1 finding (high, localization)
+
+Example:
+Hardcoded JSX text found: "Save"
 ```
 
 ## JSON report
@@ -171,6 +189,8 @@ npx nohardtext scan src --json --output nohardtext-report.json
 The JSON report includes schema version, generation time, scanned files, findings, severity summary, rule breakdown, category breakdown, top issues, localization health score, ship decision, and CI metadata.
 
 ## GitHub Actions
+
+### CLI annotations
 
 NoHardText can emit GitHub Actions annotation syntax:
 
@@ -205,7 +225,64 @@ jobs:
       - run: npx nohardtext scan src --github-annotations --fail-on high
 ```
 
-A dedicated GitHub Action package is planned.
+### Official reusable action
+
+NoHardText also provides a reusable GitHub Action from this repository:
+
+```yaml
+name: NoHardText
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  nohardtext:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: nohardcoding-git/nohardtext@main
+        with:
+          path: src
+          fail-on: high
+          github-annotations: "true"
+```
+
+For production usage, pin to a release tag after the next patch release instead of `main`.
+
+## Adoption path
+
+For existing projects, start in observe mode before blocking CI:
+
+```bash
+npx nohardtext scan src --json --output nohardtext-report.json
+```
+
+Then move to warning mode:
+
+```bash
+npx nohardtext scan src --github-annotations
+```
+
+After reviewing findings and tuning configuration, enable blocking mode:
+
+```bash
+npx nohardtext scan src --github-annotations --fail-on high
+```
+
+Recommended rollout:
+
+```txt
+observe -> warning -> blocking
+```
 
 ## Configuration
 
@@ -259,7 +336,6 @@ Run release safety checks:
 pnpm release:version
 pnpm release:check
 pnpm release:pack
-pnpm release:rc
 pnpm release:publish-plan
 ```
 
@@ -276,12 +352,21 @@ pnpm release:publish-plan
 
 NoHardText is designed to become the quality gate for localization in frontend projects.
 
+Completed foundations:
+
+- CLI scan
+- JSON reporting
+- GitHub Actions annotations
+- official reusable GitHub Action
+- non-blocking adoption docs
+- score methodology docs
+- real-world scan quality coverage
+
 Planned work:
 
-- official GitHub Action
-- stronger real-world scan coverage
-- auto-fix suggestions
+- ESLint plugin
 - VS Code extension
+- auto-fix suggestions
 - hosted reporting
 - team dashboards
 - PR comments
