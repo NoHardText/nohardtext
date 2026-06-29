@@ -1,0 +1,48 @@
+{
+  "name": "@nohardcoding/eslint-plugin-nohardtext",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nohardcoding/nohardtext-detect-engine": "workspace:*"
+  },
+  "peerDependencies": {
+    "eslint": ">=8.57.0 || >=9.0.0"
+  },
+  "description": "ESLint plugin for detecting hardcoded user-facing UI strings with NoHardText.",
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "localization",
+    "i18n",
+    "react",
+    "typescript",
+    "tsx",
+    "nohardtext"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "license": "MIT"
+}

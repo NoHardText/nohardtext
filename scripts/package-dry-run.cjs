@@ -11,7 +11,7 @@ const packages = [
   { name: "@nohardcoding/nohardtext-rule-engine", dir: "packages/rule-engine", requiresBin: false },
   { name: "@nohardcoding/nohardtext-detect-engine", dir: "packages/detect-engine", requiresBin: false },
   { name: "@nohardcoding/nohardtext-report-engine", dir: "packages/report-engine", requiresBin: false },
-  { name: "@nohardcoding/nohardtext", dir: "packages/cli", requiresBin: true }
+  { name: "@nohardcoding/nohardtext", dir: "packages/cli", requiresBin: true }, { name: "@nohardcoding/eslint-plugin-nohardtext", dir: "packages/eslint-plugin", requiresBin: false }
 ];
 
 function run(command, cwd) {

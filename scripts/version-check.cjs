@@ -10,7 +10,7 @@ const packagePaths = [
   "packages/rule-engine/package.json",
   "packages/detect-engine/package.json",
   "packages/report-engine/package.json",
-  "packages/cli/package.json"
+  "packages/cli/package.json", "packages/eslint-plugin/package.json"
 ];
 
 function readJson(filePath) {
